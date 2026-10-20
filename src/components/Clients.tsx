@@ -15,17 +15,8 @@ interface ClientsProps {
 }
 
 export default function Clients({ clients = [] }: ClientsProps) {
-  const fallbackClients: ClientItem[] = [
-    { name: "Akurat.co", logoUrl: "/uploads/logos/akurat_co.svg", portfolioSlug: null },
-    { name: "Coca-Cola", logoUrl: "/uploads/logos/coca_cola.svg", portfolioSlug: null },
-    { name: "PwC", logoUrl: "/uploads/logos/pwc.svg", portfolioSlug: null },
-    { name: "UIMF", logoUrl: "/uploads/logos/uimf.svg", portfolioSlug: null },
-    { name: "PergiKuliner", logoUrl: "/uploads/logos/pergikuliner.svg", portfolioSlug: null },
-    { name: "Cedea", logoUrl: "/uploads/logos/cedea.svg", portfolioSlug: null },
-    { name: "Iluni FEB UI", logoUrl: "/uploads/logos/iluni_feb_ui.svg", portfolioSlug: null }
-  ];
-
-  const listToRender = clients.length > 0 ? clients : fallbackClients;
+  if (!clients || clients.length === 0) return null;
+  const listToRender = clients;
 
   return (
     <section id="clients" className="py-10 md:py-16 bg-brand-light relative border-t border-brand-magenta/5" suppressHydrationWarning>
