@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Calendar, MapPin, Tag, Building2, CheckCircle2, MessageSquare } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, Tag, Building2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -50,12 +50,14 @@ export default async function PortfolioDetailPage({ params }: Props) {
     notFound();
   }
 
-  const isVideo = (url?: string | null) => {
+  const isVideoFile = (url?: string | null) => {
     if (!url) return false;
     return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
   };
 
-  // Compile all media items: thumbnail + gallery
+  const videoSource = portfolio.videoUrl || (isVideoFile(portfolio.thumbnail) ? portfolio.thumbnail : null);
+
+  // Compile all gallery images
   const allMedia = [portfolio.thumbnail];
   portfolio.images.forEach(img => {
     if (img.url !== portfolio.thumbnail) {
@@ -88,9 +90,10 @@ export default async function PortfolioDetailPage({ params }: Props) {
             {/* Left side: Video / Media Showcase */}
             <div className="lg:col-span-7 space-y-6">
               <div className="w-full aspect-[16/10] bg-black rounded-3xl overflow-hidden border border-zinc-200 shadow-2xl relative flex items-center justify-center">
-                {isVideo(portfolio.thumbnail) ? (
+                {videoSource ? (
                   <video 
-                    src={portfolio.thumbnail} 
+                    src={videoSource} 
+                    poster={portfolio.thumbnail && !isVideoFile(portfolio.thumbnail) ? portfolio.thumbnail : undefined}
                     controls 
                     autoPlay 
                     muted 
@@ -115,7 +118,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
                       key={idx} 
                       className="aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-200 hover:border-brand-magenta/50 transition-colors group relative flex items-center justify-center"
                     >
-                      {isVideo(url) ? (
+                      {isVideoFile(url) ? (
                         <video 
                           src={url} 
                           controls 

@@ -19,6 +19,7 @@ interface PortfolioItem {
   categoryId: string;
   category: { id: string; name: string };
   thumbnail: string;
+  videoUrl?: string | null;
   featured: boolean;
   images: PortfolioImage[];
 }
@@ -29,16 +30,28 @@ interface PortfolioProps {
   layoutMode?: "grid" | "carousel";
 }
 
-function VideoCardMedia({ src, title }: { src: string; title: string }) {
+function VideoHoverCard({ 
+  thumbnail, 
+  videoSrc, 
+  title 
+}: { 
+  thumbnail: string; 
+  videoSrc: string; 
+  title: string;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {
+    setIsHovered(true);
     if (videoRef.current) {
+      videoRef.current.currentTime = 0;
       videoRef.current.play().catch(() => {});
     }
   };
 
   const handleMouseLeave = () => {
+    setIsHovered(false);
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
@@ -47,18 +60,31 @@ function VideoCardMedia({ src, title }: { src: string; title: string }) {
 
   return (
     <div 
-      className="w-full h-full relative"
+      className="w-full h-full relative overflow-hidden"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {/* Static thumbnail image (shown when not hovered or as fallback) */}
+      <img
+        src={thumbnail}
+        alt={title}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isHovered ? "opacity-0" : "opacity-100"
+        }`}
+        loading="lazy"
+      />
+
+      {/* Video element plays on hover */}
       <video
         ref={videoRef}
-        src={src}
+        src={videoSrc}
         muted
         loop
         playsInline
         preload="metadata"
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+          isHovered ? "opacity-100" : "opacity-0"
+        }`}
       />
     </div>
   );
@@ -87,7 +113,7 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     }
   }, [categories]);
 
-  const isVideo = (url?: string | null) => {
+  const isVideoFile = (url?: string | null) => {
     if (!url) return false;
     return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
   };
@@ -163,96 +189,114 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
         ) : layoutMode === "carousel" ? (
           /* Carousel layout mode */
           <div className="flex lg:grid lg:grid-cols-3 items-stretch gap-3 md:gap-4 overflow-x-auto lg:overflow-visible pb-8 lg:pb-0 snap-x snap-mandatory scroll-smooth -mx-6 px-6 md:-mx-12 md:px-12 lg:mx-0 lg:px-0 scroll-pl-6 md:scroll-pl-12 scrollbar-none">
-            {projectsToRender.map((project, idx) => (
-              <div 
-                key={project.id} 
-                className="min-w-[75vw] sm:min-w-[40vw] lg:min-w-0 snap-start snap-always shrink-0 lg:shrink flex w-full"
-              >
-                <Link href={`/portfolio/${project.slug}`} className="group w-full flex flex-col h-full">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: idx * 0.05 }}
-                    className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-black flex flex-col"
-                  >
-                    {isVideo(project.thumbnail) ? (
-                      <VideoCardMedia src={project.thumbnail} title={project.title} />
-                    ) : (
-                      <img
-                        src={project.thumbnail}
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                    
-                    <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">{project.category.name}</span>
-                        {isVideo(project.thumbnail) && (
-                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
-                            <Play size={8} fill="currentColor" /> Hover to Play
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-heading text-xs sm:text-base md:text-lg font-bold text-white mb-1 line-clamp-1">{project.title}</h3>
-                      {project.client && <p className="text-[9px] sm:text-xs text-white/70 mb-1">Klien: {project.client}</p>}
+            {projectsToRender.map((project, idx) => {
+              const videoSource = project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
+              const thumbImage = project.thumbnail && !isVideoFile(project.thumbnail) ? project.thumbnail : (project.images[0]?.url || project.thumbnail);
+
+              return (
+                <div 
+                  key={project.id} 
+                  className="min-w-[75vw] sm:min-w-[40vw] lg:min-w-0 snap-start snap-always shrink-0 lg:shrink flex w-full"
+                >
+                  <Link href={`/portfolio/${project.slug}`} className="group w-full flex flex-col h-full">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: idx * 0.05 }}
+                      className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-black flex flex-col"
+                    >
+                      {videoSource ? (
+                        <VideoHoverCard 
+                          thumbnail={thumbImage} 
+                          videoSrc={videoSource} 
+                          title={project.title} 
+                        />
+                      ) : (
+                        <img
+                          src={project.thumbnail}
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1 sm:mt-2">
-                        <ArrowUpRight size={12} className="text-white" />
+                      <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">{project.category.name}</span>
+                          {videoSource && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
+                              <Play size={8} fill="currentColor" /> Hover to Play
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-heading text-xs sm:text-base md:text-lg font-bold text-white mb-1 line-clamp-1">{project.title}</h3>
+                        {project.client && <p className="text-[9px] sm:text-xs text-white/70 mb-1">Klien: {project.client}</p>}
+                        
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1 sm:mt-2">
+                          <ArrowUpRight size={12} className="text-white" />
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              </div>
-            ))}
+                    </motion.div>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         ) : (
           /* Standard Grid Layout */
           <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <AnimatePresence>
-              {projectsToRender.map(project => (
-                <Link href={`/portfolio/${project.slug}`} key={project.id} className="block group">
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                    className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-black"
-                  >
-                    {isVideo(project.thumbnail) ? (
-                      <VideoCardMedia src={project.thumbnail} title={project.title} />
-                    ) : (
-                      <img
-                        src={project.thumbnail}
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                    
-                    <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                      <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                        <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm">{project.category.name}</span>
-                        {isVideo(project.thumbnail) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
-                            <Play size={9} fill="currentColor" /> Hover to Play
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-heading text-xs sm:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 leading-tight">{project.title}</h3>
-                      {project.client && <p className="text-[9px] sm:text-xs text-white/50 mb-1 sm:mb-2">Klien: {project.client}</p>}
+              {projectsToRender.map(project => {
+                const videoSource = project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
+                const thumbImage = project.thumbnail && !isVideoFile(project.thumbnail) ? project.thumbnail : (project.images[0]?.url || project.thumbnail);
+
+                return (
+                  <Link href={`/portfolio/${project.slug}`} key={project.id} className="block group">
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.4 }}
+                      className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-black"
+                    >
+                      {videoSource ? (
+                        <VideoHoverCard 
+                          thumbnail={thumbImage} 
+                          videoSrc={videoSource} 
+                          title={project.title} 
+                        />
+                      ) : (
+                        <img
+                          src={project.thumbnail}
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       
-                      <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2 sm:mt-4">
-                        <ArrowUpRight size={14} className="text-white" />
+                      <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
+                        <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                          <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm">{project.category.name}</span>
+                          {videoSource && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
+                              <Play size={9} fill="currentColor" /> Hover to Play
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-heading text-xs sm:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 leading-tight">{project.title}</h3>
+                        {project.client && <p className="text-[9px] sm:text-xs text-white/50 mb-1 sm:mb-2">Klien: {project.client}</p>}
+                        
+                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2 sm:mt-4">
+                          <ArrowUpRight size={14} className="text-white" />
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
+                    </motion.div>
+                  </Link>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
         )}

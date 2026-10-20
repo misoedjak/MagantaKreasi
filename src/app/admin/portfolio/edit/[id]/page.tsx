@@ -41,6 +41,7 @@ export default async function EditPortfolioPage({ params }: EditPortfolioPagePro
     location: portfolio.location || "",
     description: portfolio.description,
     thumbnail: portfolio.thumbnail,
+    videoUrl: portfolio.videoUrl || "",
     featured: portfolio.featured,
     status: portfolio.status,
     seoTitle: portfolio.seoTitle || "",

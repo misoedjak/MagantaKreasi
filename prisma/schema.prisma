@@ -37,6 +37,7 @@ model Portfolio {
   location    String?
   description String
   thumbnail   String
+  videoUrl    String?
   featured    Boolean          @default(false)
   status      String           @default("draft")
   seoTitle    String?

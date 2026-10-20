@@ -88,6 +88,7 @@ const portfolioSchema = z.object({
   location: z.string().nullable().optional(),
   description: z.string().min(1, "Description is required"),
   thumbnail: z.string().min(1, "Thumbnail is required"),
+  videoUrl: z.string().nullable().optional(),
   featured: z.boolean().default(false),
   status: z.string().default("draft"),
   seoTitle: z.string().nullable().optional(),

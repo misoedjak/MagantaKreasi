@@ -21,9 +21,11 @@ export async function POST(req: NextRequest) {
     const urls: string[] = [];
 
     for (const file of files) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        return NextResponse.json({ error: "Only image files are allowed" }, { status: 400 });
+      // Validate file type (allow images and videos)
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) {
+        return NextResponse.json({ error: "Only image and video files are allowed" }, { status: 400 });
       }
 
       // Convert file stream to buffer
