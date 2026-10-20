@@ -45,7 +45,6 @@ function VideoHoverCard({
   const handleMouseEnter = () => {
     setIsHovered(true);
     if (videoRef.current) {
-      videoRef.current.currentTime = 0;
       videoRef.current.play().catch(() => {});
     }
   };
@@ -54,7 +53,6 @@ function VideoHoverCard({
     setIsHovered(false);
     if (videoRef.current) {
       videoRef.current.pause();
-      videoRef.current.currentTime = 0;
     }
   };
 
