@@ -40,48 +40,53 @@ function VideoHoverCard({
   title: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const handleMouseEnter = () => {
-    setIsHovered(true);
+    setHasStarted(true);
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.muted = false; // Turn sound on when played
+      videoRef.current.play().catch(() => {
+        // Fallback to muted if browser blocks unmuted autoplay without user interaction
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          videoRef.current.play().catch(() => {});
+        }
+      });
     }
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
     if (videoRef.current) {
-      videoRef.current.pause();
+      videoRef.current.pause(); // Pause at current position, stays on current frame
     }
   };
 
   return (
     <div 
-      className="w-full h-full relative overflow-hidden"
+      className="w-full h-full relative overflow-hidden bg-black"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Static thumbnail image (shown when not hovered or as fallback) */}
+      {/* Static thumbnail image (only shown until the video is hovered for the first time) */}
       <img
         src={thumbnail}
         alt={title}
         className={`w-full h-full object-cover transition-opacity duration-300 ${
-          isHovered ? "opacity-0" : "opacity-100"
+          hasStarted ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
         loading="lazy"
       />
 
-      {/* Video element plays on hover */}
+      {/* Video element stays visible once started, pausing on mouse leave without resetting to thumbnail */}
       <video
         ref={videoRef}
         src={videoSrc}
-        muted
         loop
         playsInline
         preload="metadata"
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-          isHovered ? "opacity-100" : "opacity-0"
+          hasStarted ? "opacity-100" : "opacity-0"
         }`}
       />
     </div>
