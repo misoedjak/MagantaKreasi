@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, FolderOpen, Play } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +27,41 @@ interface PortfolioProps {
   initialPortfolios: PortfolioItem[];
   categories: { id: string; name: string; slug: string }[];
   layoutMode?: "grid" | "carousel";
+}
+
+function VideoCardMedia({ src, title }: { src: string; title: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  return (
+    <div 
+      className="w-full h-full relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+    </div>
+  );
 }
 
 export default function Portfolio({ initialPortfolios, categories, layoutMode = "grid" }: PortfolioProps) {
@@ -142,14 +177,7 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                     className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-black flex flex-col"
                   >
                     {isVideo(project.thumbnail) ? (
-                      <video
-                        src={project.thumbnail}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
+                      <VideoCardMedia src={project.thumbnail} title={project.title} />
                     ) : (
                       <img
                         src={project.thumbnail}
@@ -158,14 +186,14 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                         loading="lazy"
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     
-                    <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                    <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">{project.category.name}</span>
                         {isVideo(project.thumbnail) && (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
-                            <Play size={8} fill="currentColor" /> Video
+                            <Play size={8} fill="currentColor" /> Hover to Play
                           </span>
                         )}
                       </div>
@@ -196,14 +224,7 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                     className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-black"
                   >
                     {isVideo(project.thumbnail) ? (
-                      <video
-                        src={project.thumbnail}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
+                      <VideoCardMedia src={project.thumbnail} title={project.title} />
                     ) : (
                       <img
                         src={project.thumbnail}
@@ -211,14 +232,14 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     
-                    <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
                       <div className="flex items-center gap-2 mb-1 sm:mb-2">
                         <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm">{project.category.name}</span>
                         {isVideo(project.thumbnail) && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
-                            <Play size={9} fill="currentColor" /> Video
+                            <Play size={9} fill="currentColor" /> Hover to Play
                           </span>
                         )}
                       </div>
