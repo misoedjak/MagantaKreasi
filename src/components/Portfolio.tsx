@@ -125,8 +125,31 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     ? initialPortfolios 
     : initialPortfolios.filter(p => p.categoryId === activeFilter);
 
+  // In carousel mode (homepage preview), showcase the 6 best video projects
+  const videoPortfolios = initialPortfolios.filter(
+    p => isVideoFile(p.videoUrl) || isVideoFile(p.thumbnail)
+  );
+
+  const preferredVideoOrder = [
+    "the-13th-ui-music-fair-stage-fabrication",
+    "christmas-symphony-recap-bxc-mall",
+    "inbody-indonesia-isfex-2024-recap",
+    "cedea-20th-anniversary-behind-the-build",
+    "hut-astra-agro-lestari-36-setup",
+    "behind-the-booth-fast-track-installation"
+  ];
+
+  const sortedVideos = [...videoPortfolios].sort((a, b) => {
+    const idxA = preferredVideoOrder.indexOf(a.slug);
+    const idxB = preferredVideoOrder.indexOf(b.slug);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    if (idxA !== -1) return -1;
+    if (idxB !== -1) return 1;
+    return 0;
+  });
+
   const projectsToRender = layoutMode === "carousel" 
-    ? initialPortfolios.slice(0, 6)
+    ? (sortedVideos.length >= 6 ? sortedVideos.slice(0, 6) : initialPortfolios.slice(0, 6))
     : filteredProjects;
 
   const sectionPadding = layoutMode === "carousel" 
