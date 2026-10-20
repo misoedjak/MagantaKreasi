@@ -200,9 +200,10 @@ export default function PortfolioMediaViewer({ portfolio, profile }: PortfolioMe
                   <div className="flex items-start gap-3">
                     <Calendar className="h-5 w-5 text-brand-magenta shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Date Completed</p>
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Timeline / Tanggal</p>
                       <p className="font-semibold text-zinc-800 mt-0.5">
                         {new Date(portfolio.projectDate).toLocaleDateString("id-ID", {
+                          day: "numeric",
                           month: "long",
                           year: "numeric"
                         })}
