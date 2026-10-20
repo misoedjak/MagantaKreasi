@@ -11,11 +11,15 @@ if (process.env.NODE_ENV === "production" && process.env.VERCEL) {
   const srcDbPath = path.join(process.cwd(), "dev.db");
   const destDbPath = "/tmp/dev.db";
   try {
-    if (fs.existsSync(srcDbPath)) {
-      fs.copyFileSync(srcDbPath, destDbPath);
-      console.log("Database copied to /tmp/dev.db");
+    if (!fs.existsSync(destDbPath)) {
+      if (fs.existsSync(srcDbPath)) {
+        fs.copyFileSync(srcDbPath, destDbPath);
+        console.log("Database initialized from build: copied to /tmp/dev.db");
+      } else {
+        console.warn("Database file not found in build path:", srcDbPath);
+      }
     } else {
-      console.warn("Database file not found in build path:", srcDbPath);
+      console.log("Using existing /tmp/dev.db");
     }
   } catch (err) {
     console.error("Failed to copy database to /tmp", err);

@@ -78,6 +78,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
   const [isVideoUploading, setIsVideoUploading] = useState(false);
   const [isGalleryUploading, setIsGalleryUploading] = useState(false);
   const [isCapturingFrame, setIsCapturingFrame] = useState(false);
+  const [videoTime, setVideoTime] = useState<number>(0);
 
   // Hidden Video Ref for Frame Capture
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
@@ -138,6 +139,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       toast.error("Failed to upload thumbnail");
     } finally {
       setIsThumbUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -181,6 +183,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       toast.error("Failed to upload video");
     } finally {
       setIsVideoUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -264,7 +267,11 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       }
 
       setThumbnail(finalThumbnail);
-      toast.success(`Captured frame at ${video.currentTime.toFixed(1)}s as project thumbnail!`);
+      if (video.currentTime < 0.5) {
+        toast.info(`Captured frame at 0.0s (start title). Scrub the video to pick an action/stage shot!`);
+      } else {
+        toast.success(`Captured frame at ${video.currentTime.toFixed(1)}s as project thumbnail!`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to capture frame");
     } finally {
@@ -323,6 +330,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       toast.error("Failed to upload gallery media");
     } finally {
       setIsGalleryUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -491,12 +499,13 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
                       controls
                       playsInline
                       crossOrigin="anonymous"
+                      onTimeUpdate={(e) => setVideoTime(e.currentTarget.currentTime)}
                       className="w-full h-full object-contain"
                     />
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-zinc-50 rounded-xl border border-zinc-200">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Button
                         type="button"
                         onClick={captureFrameAsThumbnail}
@@ -510,6 +519,9 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
                         )}
                         <span>Set Current Video Frame as Thumbnail</span>
                       </Button>
+                      <span className="text-xs text-zinc-500 font-mono bg-white px-2.5 py-1 rounded-md border border-zinc-200 shadow-xs">
+                        Frame: {videoTime.toFixed(1)}s
+                      </span>
                     </div>
 
                     <Button
@@ -702,23 +714,45 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               {thumbnail ? (
-                <div className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                  <img 
-                    src={thumbnail} 
-                    alt="Thumbnail cover" 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => setThumbnail("")}
-                      className="h-7 w-7 bg-red-600 hover:bg-red-700 rounded-md text-white shadow-sm"
-                      disabled={isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                <div className="space-y-2">
+                  <div className="relative aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                    <img 
+                      src={thumbnail} 
+                      alt="Thumbnail cover" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        onClick={() => setThumbnail("")}
+                        className="h-7 w-7 bg-red-600 hover:bg-red-700 rounded-md text-white shadow-sm"
+                        disabled={isPending}
+                        title="Hapus Thumbnail"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {thumbnail !== initialData?.thumbnail && (
+                      <div className="absolute bottom-2 left-2 bg-emerald-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded shadow-sm">
+                        Baru dipilih (Belum disimpan)
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-brand-magenta hover:underline cursor-pointer font-medium flex items-center gap-1">
+                      <Upload className="h-3 w-3" />
+                      <span>Ganti dengan foto lain</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleThumbUpload}
+                        disabled={isThumbUploading || isPending}
+                      />
+                    </label>
+                    {isThumbUploading && <Loader2 className="h-3.5 w-3.5 animate-spin text-brand-magenta" />}
                   </div>
                 </div>
               ) : (
