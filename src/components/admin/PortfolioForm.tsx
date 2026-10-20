@@ -103,18 +103,36 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
 
     setIsThumbUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      let finalUrl: string | null = null;
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) throw new Error("Upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.urls?.[0]) {
+            finalUrl = data.urls[0];
+          }
+        }
+      } catch {
+        // Fallback to client-side data URL
+      }
 
-      const data = await res.json();
-      setThumbnail(data.urls[0]);
+      if (!finalUrl) {
+        const reader = new FileReader();
+        finalUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      setThumbnail(finalUrl);
       toast.success("Thumbnail cover uploaded successfully!");
     } catch (err) {
       toast.error("Failed to upload thumbnail");
@@ -129,18 +147,34 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
 
     setIsVideoUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      let uploadedVideoUrl: string | null = null;
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) throw new Error("Video upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.urls?.[0]) {
+            uploadedVideoUrl = data.urls[0];
+          }
+        }
+      } catch {
+        // Fallback to local Object URL
+      }
 
-      const data = await res.json();
-      const uploadedVideoUrl = data.urls[0];
+      if (!uploadedVideoUrl) {
+        // Fallback to browser object URL for preview and frame capture
+        uploadedVideoUrl = URL.createObjectURL(file);
+        setVideoUrl(uploadedVideoUrl);
+        toast.info("Video loaded in browser! You can now scrub to any frame and capture it as thumbnail.");
+        return;
+      }
+
       setVideoUrl(uploadedVideoUrl);
       toast.success("Video uploaded successfully! You can now capture a frame as thumbnail below.");
     } catch (err) {
@@ -150,7 +184,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
     }
   };
 
-  // Capture current frame from video and upload as thumbnail
+  // Capture current frame from video and upload or save as thumbnail
   const captureFrameAsThumbnail = async () => {
     const video = videoPreviewRef.current;
     if (!video) {
@@ -158,36 +192,78 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       return;
     }
 
+    if (!video.videoWidth || !video.videoHeight) {
+      toast.error("Video is not ready yet. Please wait a moment or press play.");
+      return;
+    }
+
     try {
       setIsCapturingFrame(true);
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
+      // Scale down if necessary to preserve aspect ratio within 1280px max dimension
+      const maxDim = 1280;
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Canvas context failed");
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, width, height);
 
-      // Convert canvas to blob
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
-      );
+      // 1. Generate client-side base64 data URL immediately
+      let fallbackDataUrl: string | null = null;
+      try {
+        fallbackDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+      } catch (canvasErr) {
+        console.warn("Canvas toDataURL failed (possibly tainted canvas):", canvasErr);
+      }
 
-      if (!blob) throw new Error("Failed to extract frame");
+      // 2. Try uploading to server endpoint as a persistent file if server permits
+      let uploadedUrl: string | null = null;
+      try {
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob((b) => resolve(b), "image/jpeg", 0.88)
+        );
 
-      const file = new File([blob], `frame-${Math.floor(video.currentTime)}.jpg`, { type: "image/jpeg" });
-      const formData = new FormData();
-      formData.append("file", file);
+        if (blob) {
+          const file = new File([blob], `frame-${Math.floor(video.currentTime)}.jpg`, { type: "image/jpeg" });
+          const formData = new FormData();
+          formData.append("file", file);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-      if (!res.ok) throw new Error("Failed to save frame as thumbnail");
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.urls?.[0]) {
+              uploadedUrl = data.urls[0];
+            }
+          }
+        }
+      } catch (uploadErr) {
+        console.warn("Server upload failed, falling back to client-side frame data:", uploadErr);
+      }
 
-      const data = await res.json();
-      setThumbnail(data.urls[0]);
+      const finalThumbnail = uploadedUrl || fallbackDataUrl;
+
+      if (!finalThumbnail) {
+        throw new Error("Unable to extract frame. Please ensure video permissions allow frame extraction.");
+      }
+
+      setThumbnail(finalThumbnail);
       toast.success(`Captured frame at ${video.currentTime.toFixed(1)}s as project thumbnail!`);
     } catch (err: any) {
       toast.error(err.message || "Failed to capture frame");
@@ -205,18 +281,40 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
       const uploadedUrls: string[] = [];
 
       for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append("file", files[i]);
+        const file = files[i];
+        let fileUrl: string | null = null;
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
 
-        if (!res.ok) throw new Error("Gallery upload failed");
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-        const data = await res.json();
-        uploadedUrls.push(...data.urls);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.urls?.[0]) {
+              fileUrl = data.urls[0];
+            }
+          }
+        } catch {
+          // Fallback to base64
+        }
+
+        if (!fileUrl) {
+          const reader = new FileReader();
+          fileUrl = await new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+
+        if (fileUrl) {
+          uploadedUrls.push(fileUrl);
+        }
       }
 
       setImages([...images, ...uploadedUrls]);
@@ -392,6 +490,7 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
                       src={videoUrl}
                       controls
                       playsInline
+                      crossOrigin="anonymous"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -427,27 +526,48 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
                   </div>
                 </div>
               ) : (
-                <div className="border border-dashed border-gray-200 rounded-xl bg-gray-50/50 p-6 text-center">
-                  <label className="flex flex-col items-center gap-2 cursor-pointer">
-                    <div className="w-10 h-10 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 shadow-sm">
-                      {isVideoUploading ? (
-                        <Loader2 className="h-5 w-5 animate-spin text-brand-magenta" />
-                      ) : (
-                        <Video className="h-5 w-5 text-brand-magenta" />
-                      )}
-                    </div>
-                    <span className="text-xs font-semibold text-gray-700">
-                      {isVideoUploading ? "Uploading video..." : "Upload Project Video (MP4 / WebM)"}
-                    </span>
-                    <span className="text-[10px] text-gray-400">Plays on card hover & on detail view</span>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      className="hidden"
-                      onChange={handleVideoUpload}
-                      disabled={isVideoUploading || isPending}
+                <div className="space-y-3">
+                  <div className="border border-dashed border-gray-200 rounded-xl bg-gray-50/50 p-6 text-center">
+                    <label className="flex flex-col items-center gap-2 cursor-pointer">
+                      <div className="w-10 h-10 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 shadow-sm">
+                        {isVideoUploading ? (
+                          <Loader2 className="h-5 w-5 animate-spin text-brand-magenta" />
+                        ) : (
+                          <Video className="h-5 w-5 text-brand-magenta" />
+                        )}
+                      </div>
+                      <span className="text-xs font-semibold text-gray-700">
+                        {isVideoUploading ? "Uploading video..." : "Upload Project Video (MP4 / WebM)"}
+                      </span>
+                      <span className="text-[10px] text-gray-400">Plays on card hover & on detail view</span>
+                      <input
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime"
+                        className="hidden"
+                        onChange={handleVideoUpload}
+                        disabled={isVideoUploading || isPending}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Or enter video URL / path (e.g. /uploads/portfolio/uimf-2026.mp4)"
+                      className="text-xs"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const val = (e.currentTarget.value || "").trim();
+                          if (val) setVideoUrl(val);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const val = (e.currentTarget.value || "").trim();
+                        if (val) setVideoUrl(val);
+                      }}
                     />
-                  </label>
+                  </div>
                 </div>
               )}
             </CardContent>

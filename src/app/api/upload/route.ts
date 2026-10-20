@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
 
     // Set up directory in public folder
     const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
 
     const urls: string[] = [];
 
@@ -33,13 +32,21 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(bytes);
 
       // Generate secure unique filename
-      const fileExt = path.extname(file.name) || ".jpg";
+      const fileExt = path.extname(file.name) || (isImage ? ".jpg" : ".mp4");
       const fileName = `${crypto.randomUUID()}${fileExt}`;
       const filePath = path.join(uploadDir, fileName);
 
-      // Write file locally
-      await writeFile(filePath, buffer);
-      urls.push(`/uploads/${fileName}`);
+      try {
+        await mkdir(uploadDir, { recursive: true });
+        // Write file locally
+        await writeFile(filePath, buffer);
+        urls.push(`/uploads/${fileName}`);
+      } catch (fsErr) {
+        console.warn("Filesystem write not permitted or failed, falling back to base64 data URL:", fsErr);
+        const mimeType = file.type || (isImage ? "image/jpeg" : "video/mp4");
+        const base64 = buffer.toString("base64");
+        urls.push(`data:${mimeType};base64,${base64}`);
+      }
     }
 
     return NextResponse.json({ urls });
