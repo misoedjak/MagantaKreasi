@@ -169,7 +169,7 @@ export default function Contact({ profile }: ContactProps) {
             {/* Google Maps Embed */}
             <div className="w-full h-64 bg-white/10 relative">
               {(() => {
-                let mapSrc = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m2!1s0x2e69f3e945e34b9d%3A0x5371bf0fdad786a9!2sJakarta%2C%20Indonesia!5e0!3m2!1sen!2sus!4v1689255627254!5m2!1sen!2sus";
+                let mapSrc = "https://maps.google.com/maps?q=-6.2846527,107.0533447&hl=id&z=17&output=embed";
                 if (profile?.mapUrl && profile.mapUrl.includes("embed")) {
                   mapSrc = profile.mapUrl;
                 } else if (profile?.address) {

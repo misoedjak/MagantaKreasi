@@ -19,7 +19,7 @@ export default function Process({ steps = [] }: ProcessProps) {
     { title: "Konsultasi & Briefing", desc: "Memahami visi brand Anda, batasan ruang, dan anggaran.", bgImageUrl: null },
     { title: "Desain 3D & Rendering", desc: "Menyediakan mockup fotorealistis dan denah lantai struktural.", bgImageUrl: null },
     { title: "Pemilihan Material", desc: "Mencari bahan yang tepat, mulai dari kayu, logam, dan finishing yang dibutuhkan.", bgImageUrl: null },
-    { title: "Fabrikasi Workshop", desc: "Pekerjaan kayu, logam, dan pengecatan di fasilitas khusus kami.", bgImageUrl: null },
+    { title: "In-House Production", desc: "Pekerjaan kayu, logam, dan pengecatan di fasilitas khusus kami.", bgImageUrl: null },
     { title: "Quality Control", desc: "Pemasangan awal struktur kompleks di workshop kami untuk menjamin kesesuaian.", bgImageUrl: null },
     { title: "Instalasi di Lokasi", desc: "Konstruksi dan loading yang aman dan cepat di lokasi event.", bgImageUrl: null },
     { title: "Pembongkaran", desc: "Pembongkaran bersih dan pemindahan logistik pasca-event.", bgImageUrl: null },
