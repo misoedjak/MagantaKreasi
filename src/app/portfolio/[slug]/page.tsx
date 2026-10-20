@@ -1,37 +1,40 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Calendar, MapPin, Building2, Tag } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ArrowLeft, Calendar, MapPin, Tag, Building2, CheckCircle2, MessageSquare } from "lucide-react";
+import Link from "next/link";
 import { Metadata } from "next";
 
 export const revalidate = 0;
 
-interface PortfolioDetailPageProps {
+interface Props {
   params: Promise<{ slug: string }> | { slug: string };
 }
 
-// Generate Dynamic SEO Metadata
-export async function generateMetadata({ params }: PortfolioDetailPageProps): Promise<Metadata> {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const portfolio = await prisma.portfolio.findUnique({
-    where: { slug }
+    where: { slug },
   });
 
-  if (!portfolio) return {};
+  if (!portfolio) {
+    return { title: "Portfolio Not Found | Maganta Kreasi" };
+  }
 
   return {
     title: portfolio.seoTitle || `${portfolio.title} | Maganta Kreasi`,
-    description: portfolio.seoDesc || portfolio.description.substring(0, 160),
+    description: portfolio.seoDesc || portfolio.description.slice(0, 160),
+    openGraph: {
+      title: portfolio.seoTitle || portfolio.title,
+      description: portfolio.seoDesc || portfolio.description.slice(0, 160),
+      images: [portfolio.thumbnail],
+    }
   };
 }
 
-export default async function PortfolioDetailPage({ params }: PortfolioDetailPageProps) {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+export default async function PortfolioDetailPage({ params }: Props) {
+  const { slug } = await params;
 
   const portfolio = await prisma.portfolio.findUnique({
     where: { slug },
@@ -43,15 +46,20 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
     }
   });
 
-  if (!portfolio || portfolio.status !== "published") {
+  if (!portfolio) {
     notFound();
   }
 
-  // Compile all images: thumbnail + gallery
-  const allImages = [portfolio.thumbnail];
+  const isVideo = (url?: string | null) => {
+    if (!url) return false;
+    return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
+  };
+
+  // Compile all media items: thumbnail + gallery
+  const allMedia = [portfolio.thumbnail];
   portfolio.images.forEach(img => {
     if (img.url !== portfolio.thumbnail) {
-      allImages.push(img.url);
+      allMedia.push(img.url);
     }
   });
 
@@ -71,39 +79,58 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
             className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-brand-magenta transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Showcase</span>
+            <span>Kembali ke Portofolio</span>
           </Link>
 
           {/* Hero Banner Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            {/* Left side: Images Showcase */}
+            {/* Left side: Video / Media Showcase */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="w-full aspect-[16/10] bg-zinc-100 rounded-3xl overflow-hidden border border-zinc-200 shadow-2xl">
-                <img 
-                  src={portfolio.thumbnail} 
-                  alt={portfolio.title} 
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-full aspect-[16/10] bg-black rounded-3xl overflow-hidden border border-zinc-200 shadow-2xl relative flex items-center justify-center">
+                {isVideo(portfolio.thumbnail) ? (
+                  <video 
+                    src={portfolio.thumbnail} 
+                    controls 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline
+                    className="w-full h-full object-contain bg-black"
+                  />
+                ) : (
+                  <img 
+                    src={portfolio.thumbnail} 
+                    alt={portfolio.title} 
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
 
-              {/* Gallery Images List */}
-              {allImages.length > 1 && (
+              {/* Additional Media List */}
+              {allMedia.length > 1 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {allImages.slice(1).map((url, idx) => (
-                    <a 
+                  {allMedia.slice(1).map((url, idx) => (
+                    <div 
                       key={idx} 
-                      href={url} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="aspect-video bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-200 hover:border-brand-magenta/50 transition-colors group block"
+                      className="aspect-video bg-black rounded-2xl overflow-hidden border border-zinc-200 hover:border-brand-magenta/50 transition-colors group relative flex items-center justify-center"
                     >
-                      <img 
-                        src={url} 
-                        alt={`Gallery ${idx}`} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </a>
+                      {isVideo(url) ? (
+                        <video 
+                          src={url} 
+                          controls 
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <a href={url} target="_blank" rel="noreferrer" className="w-full h-full block">
+                          <img 
+                            src={url} 
+                            alt={`Gallery ${idx}`} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </a>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -139,8 +166,8 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                       <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Date Completed</p>
                       <p className="font-semibold text-zinc-800 mt-0.5">
                         {new Date(portfolio.projectDate).toLocaleDateString("id-ID", {
-                          year: "numeric",
                           month: "long",
+                          year: "numeric"
                         })}
                       </p>
                     </div>
@@ -150,20 +177,36 @@ export default async function PortfolioDetailPage({ params }: PortfolioDetailPag
                   <div className="flex items-start gap-3">
                     <MapPin className="h-5 w-5 text-brand-magenta shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Venue Location</p>
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold">Location / Venue</p>
                       <p className="font-semibold text-zinc-800 mt-0.5">{portfolio.location}</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Description Body */}
-              <div className="space-y-3">
-                <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Project Narrative</h4>
-                <p className="text-sm text-zinc-600 leading-relaxed whitespace-pre-line font-light">
+              {/* Narrative Content */}
+              <div className="space-y-4">
+                <h3 className="font-heading text-lg font-bold text-zinc-900">Project Overview</h3>
+                <div className="text-zinc-600 text-sm leading-relaxed whitespace-pre-line font-light">
                   {portfolio.description}
-                </p>
+                </div>
               </div>
+
+              {/* Direct WhatsApp CTA Button */}
+              <div className="pt-4 border-t border-zinc-100">
+                <a
+                  href={`https://wa.me/${(profile?.whatsapp || profile?.phone || "6282115151515").replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                    `Halo Maganta Kreasi, saya tertarik membuat panggung/booth seperti proyek "${portfolio.title}". Mohon info konsultasi & penawarannya.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded-full bg-brand-yellow hover:bg-brand-magenta hover:text-white text-zinc-950 font-bold text-sm tracking-wide transition-all shadow-md active:scale-95 group"
+                >
+                  <MessageSquare size={18} className="text-zinc-950 group-hover:text-white transition-colors" />
+                  <span>Konsultasi Proyek Serupa via WhatsApp</span>
+                </a>
+              </div>
+
             </div>
 
           </div>

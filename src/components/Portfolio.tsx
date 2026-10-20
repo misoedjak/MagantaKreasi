@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, FolderOpen } from "lucide-react";
+import { ArrowUpRight, FolderOpen, Play } from "lucide-react";
 import Link from "next/link";
 
 interface PortfolioImage {
@@ -43,7 +43,6 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
         );
         if (match) {
           setActiveFilter(match.id);
-          // If on portfolio page, scroll to portfolio container nicely
           const el = document.getElementById("portfolio");
           if (el) {
             el.scrollIntoView({ behavior: "smooth" });
@@ -53,12 +52,17 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     }
   }, [categories]);
 
+  const isVideo = (url?: string | null) => {
+    if (!url) return false;
+    return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
+  };
+
   const filteredProjects = activeFilter === "Semua" 
     ? initialPortfolios 
     : initialPortfolios.filter(p => p.categoryId === activeFilter);
 
   const projectsToRender = layoutMode === "carousel" 
-    ? initialPortfolios.slice(0, 6) // limit to 6 items on homepage carousel
+    ? initialPortfolios.slice(0, 6)
     : filteredProjects;
 
   const sectionPadding = layoutMode === "carousel" 
@@ -76,7 +80,7 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
           >
             <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-zinc-900"><span className="text-brand-magenta">Portofolio</span> Kami</h2>
             <p className="text-zinc-800 font-semibold text-xs sm:text-sm md:text-base max-w-2xl">
-              Jelajahi proyek pameran, booth custom, backdrop, dan dekorasi event terbaru kami.
+              Jelajahi dokumentasi proyek panggung, booth custom, backdrop, dan instalasi event resmi kami.
             </p>
           </motion.div>
 
@@ -137,16 +141,34 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                     transition={{ duration: 0.4, delay: idx * 0.05 }}
                     className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-black flex flex-col"
                   >
-                    <img
-                      src={project.thumbnail}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      loading="lazy"
-                    />
+                    {isVideo(project.thumbnail) ? (
+                      <video
+                        src={project.thumbnail}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <img
+                        src={project.thumbnail}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity" />
                     
                     <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                      <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase mb-1">{project.category.name}</span>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">{project.category.name}</span>
+                        {isVideo(project.thumbnail) && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
+                            <Play size={8} fill="currentColor" /> Video
+                          </span>
+                        )}
+                      </div>
                       <h3 className="font-heading text-xs sm:text-base md:text-lg font-bold text-white mb-1 line-clamp-1">{project.title}</h3>
                       {project.client && <p className="text-[9px] sm:text-xs text-white/70 mb-1">Klien: {project.client}</p>}
                       
@@ -173,15 +195,33 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                     transition={{ duration: 0.4 }}
                     className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-black"
                   >
-                    <img
-                      src={project.thumbnail}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                    {isVideo(project.thumbnail) ? (
+                      <video
+                        src={project.thumbnail}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <img
+                        src={project.thumbnail}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
                     
                     <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm mb-1 sm:mb-2">{project.category.name}</span>
+                      <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                        <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm">{project.category.name}</span>
+                        {isVideo(project.thumbnail) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
+                            <Play size={9} fill="currentColor" /> Video
+                          </span>
+                        )}
+                      </div>
                       <h3 className="font-heading text-xs sm:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 leading-tight">{project.title}</h3>
                       {project.client && <p className="text-[9px] sm:text-xs text-white/50 mb-1 sm:mb-2">Klien: {project.client}</p>}
                       
