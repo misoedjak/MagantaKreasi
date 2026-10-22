@@ -7,6 +7,12 @@
 @theme {
   --color-brand-yellow: #FFD400;
   --color-brand-magenta: #be3168;
+  --color-brand-magenta-hover: #a32555;
+  --color-brand-magenta-mid: #9e2150;
+  --color-brand-magenta-wine: #8a1a45;
+  --color-brand-magenta-deep: #7c153d;
+  --color-brand-whatsapp: #25D366;
+  --color-brand-whatsapp-hover: #20ba56;
   --color-brand-dark: #0f0f12;
   --color-brand-gray: #f4f4f5;
   --color-brand-light: #ffffff;
@@ -37,7 +43,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism & Brand Glow Utilities */
 @layer utilities {
   .glass {
     @apply bg-white/70 backdrop-blur-lg border border-brand-magenta/10 shadow-sm;
@@ -52,6 +58,12 @@ body {
   .scrollbar-none::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }
+  .text-glow-yellow {
+    text-shadow: 0 2px 16px rgba(255, 212, 0, 0.25);
+  }
+  .text-glow-magenta {
+    text-shadow: 0 2px 16px rgba(190, 49, 104, 0.18);
+  }
 }
 
 /* Smooth Scrolling */
@@ -59,8 +71,20 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Reduced Motion Accessibility Support */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @theme inline {
-  --font-heading: var(--font-sans);
+  --font-heading: 'Space Grotesk', sans-serif;
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

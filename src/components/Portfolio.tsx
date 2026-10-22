@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, FolderOpen, Play } from "lucide-react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { ArrowUpRight, FolderOpen, Play, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PortfolioImage {
   id: string;
@@ -37,70 +38,101 @@ interface PortfolioProps {
   layoutMode?: "grid" | "carousel";
 }
 
-function VideoHoverCard({ 
-  thumbnail, 
-  videoSrc, 
-  title 
-}: { 
-  thumbnail: string; 
-  videoSrc: string; 
+function VideoHoverCard({
+  thumbnail,
+  videoSrc,
+  title,
+}: {
+  thumbnail: string;
+  videoSrc: string;
   title: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
-  const handleMouseEnter = () => {
+  const startPlayback = () => {
     setHasStarted(true);
     if (videoRef.current) {
-      videoRef.current.muted = false; // Turn sound on when played
-      videoRef.current.play().catch(() => {
-        // Fallback to muted if browser blocks unmuted autoplay without user interaction
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
-        }
-      });
+      videoRef.current.muted = isMuted;
+      videoRef.current.play().catch(() => {});
     }
   };
 
-  const handleMouseLeave = () => {
+  const pausePlayback = () => {
     if (videoRef.current) {
-      videoRef.current.pause(); // Pause at current position, stays on current frame
+      videoRef.current.pause();
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+      if (videoRef.current.paused) {
+        setHasStarted(true);
+        videoRef.current.play().catch(() => {});
+      }
     }
   };
 
   return (
-    <div 
-      className="w-full h-full relative overflow-hidden bg-black"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <div
+      className="w-full h-full relative overflow-hidden bg-brand-dark"
+      onMouseEnter={startPlayback}
+      onMouseLeave={pausePlayback}
+      onFocus={startPlayback}
+      onBlur={pausePlayback}
     >
-      {/* Static thumbnail image (only shown until the video is hovered for the first time) */}
-      <img
+      {/* Static thumbnail image using Next/Image */}
+      <Image
         src={thumbnail}
         alt={title}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${
+        fill
+        sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 33vw"
+        className={`object-cover transition-opacity duration-300 ${
           hasStarted ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
-        loading="lazy"
       />
 
-      {/* Video element stays visible once started, pausing on mouse leave without resetting to thumbnail */}
+      {/* Video element with preload="none" and muted-by-default WCAG 1.4.2 compliance */}
       <video
         ref={videoRef}
         src={videoSrc}
         loop
+        muted={isMuted}
         playsInline
-        preload="metadata"
+        preload="none"
         className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
           hasStarted ? "opacity-100" : "opacity-0"
         }`}
       />
+
+      {/* Explicit Audio Control Button */}
+      <button
+        type="button"
+        onClick={toggleMute}
+        aria-label={isMuted ? `Nyalakan suara video ${title}` : `Matikan suara video ${title}`}
+        className="absolute top-2.5 right-2.5 z-30 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-brand-magenta transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-yellow"
+      >
+        {isMuted ? (
+          <VolumeX size={15} aria-hidden="true" />
+        ) : (
+          <Volume2 size={15} className="text-brand-yellow" aria-hidden="true" />
+        )}
+      </button>
     </div>
   );
 }
 
-export default function Portfolio({ initialPortfolios, categories, layoutMode = "grid" }: PortfolioProps) {
+export default function Portfolio({
+  initialPortfolios,
+  categories,
+  layoutMode = "grid",
+}: PortfolioProps) {
   const [activeFilter, setActiveFilter] = useState("Semua");
 
   useEffect(() => {
@@ -109,8 +141,8 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
       const categoryParam = params.get("category");
       if (categoryParam) {
         const match = categories.find(
-          c => c.slug.toLowerCase() === categoryParam.toLowerCase() || 
-               c.id === categoryParam
+          (c) =>
+            c.slug.toLowerCase() === categoryParam.toLowerCase() || c.id === categoryParam
         );
         if (match) {
           setActiveFilter(match.id);
@@ -128,13 +160,13 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
   };
 
-  const filteredProjects = activeFilter === "Semua" 
-    ? initialPortfolios 
-    : initialPortfolios.filter(p => p.categoryId === activeFilter);
+  const filteredProjects =
+    activeFilter === "Semua"
+      ? initialPortfolios
+      : initialPortfolios.filter((p) => p.categoryId === activeFilter);
 
-  // In carousel mode (homepage preview), showcase the 6 best video projects
   const videoPortfolios = initialPortfolios.filter(
-    p => isVideoFile(p.videoUrl) || isVideoFile(p.thumbnail)
+    (p) => isVideoFile(p.videoUrl) || isVideoFile(p.thumbnail)
   );
 
   const preferredVideoOrder = [
@@ -143,7 +175,7 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     "inbody-indonesia-isfex-2024-recap",
     "cedea-20th-anniversary-behind-the-build",
     "hut-astra-agro-lestari-36-setup",
-    "behind-the-booth-fast-track-installation"
+    "behind-the-booth-fast-track-installation",
   ];
 
   const sortedVideos = [...videoPortfolios].sort((a, b) => {
@@ -155,203 +187,259 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
     return 0;
   });
 
-  const projectsToRender = layoutMode === "carousel" 
-    ? (sortedVideos.length >= 6 ? sortedVideos.slice(0, 6) : initialPortfolios.slice(0, 6))
-    : filteredProjects;
+  const projectsToRender =
+    layoutMode === "carousel"
+      ? sortedVideos.length >= 6
+        ? sortedVideos.slice(0, 6)
+        : initialPortfolios.slice(0, 6)
+      : filteredProjects;
 
-  const sectionPadding = layoutMode === "carousel" 
-    ? "py-12 md:py-24" 
-    : "pt-4 pb-16 md:pt-6 md:pb-24";
+  const sectionPadding =
+    layoutMode === "carousel" ? "py-12 md:py-16" : "pt-4 pb-12 md:pt-6 md:pb-16";
 
   return (
-    <section id="portfolio" className={`bg-brand-light border-t border-brand-magenta/5 overflow-hidden ${sectionPadding}`} suppressHydrationWarning>
-      <div className="container mx-auto px-6 md:px-12">
-        <div className="flex flex-col mb-8 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-3 text-zinc-900"><span className="text-brand-magenta">Portofolio</span> Kami</h2>
-            <p className="text-zinc-800 font-semibold text-xs sm:text-sm md:text-base max-w-2xl">
-              Jelajahi dokumentasi proyek panggung, booth custom, backdrop, dan instalasi event resmi kami.
-            </p>
-          </motion.div>
-
-          {/* Categories Filters - Only show in grid mode */}
-          {layoutMode === "grid" && (
+    <MotionConfig reducedMotion="user">
+      <section
+        id="portfolio"
+        className={`bg-brand-light border-t border-brand-magenta/10 overflow-hidden ${sectionPadding}`}
+        suppressHydrationWarning
+      >
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <div className="flex flex-col mb-6 md:mb-8 gap-4">
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: -10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:flex-wrap scrollbar-none snap-x snap-mandatory shrink-0"
             >
-              <button
-                onClick={() => setActiveFilter("Semua")}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all shrink-0 snap-start ${
-                  activeFilter === "Semua" 
-                    ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/15" 
-                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                }`}
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-zinc-900">
+                <span className="text-brand-magenta">Portofolio</span> Kami
+              </h2>
+              <p className="text-zinc-700 font-medium text-xs sm:text-sm max-w-xl leading-relaxed">
+                Jelajahi dokumentasi proyek panggung, booth custom, backdrop, dan instalasi event
+                resmi kami.
+              </p>
+            </motion.div>
+
+            {/* Categories Filters - Only show in grid mode */}
+            {layoutMode === "grid" && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:flex-wrap scrollbar-none snap-x snap-mandatory shrink-0"
               >
-                Semua
-              </button>
-              {categories.map(cat => (
                 <button
-                  key={cat.id}
-                  onClick={() => setActiveFilter(cat.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all shrink-0 snap-start ${
-                    activeFilter === cat.id 
-                      ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/15" 
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  type="button"
+                  onClick={() => setActiveFilter("Semua")}
+                  className={`min-h-[40px] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 snap-start cursor-pointer ${
+                    activeFilter === "Semua"
+                      ? "bg-brand-magenta text-white shadow-md"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                   }`}
                 >
-                  {cat.name}
+                  Semua
                 </button>
-              ))}
-            </motion.div>
-          )}
-        </div>
-
-        {/* Portfolios Display */}
-        {projectsToRender.length === 0 ? (
-          <div className="py-16 text-center text-zinc-400 flex flex-col items-center gap-2 border border-dashed border-zinc-200 rounded-2xl">
-            <FolderOpen className="h-8 w-8 text-zinc-400" />
-            <p className="text-sm">Belum ada proyek portofolio yang dipublikasikan dalam kategori ini.</p>
+                {categories.map((cat) => (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    onClick={() => setActiveFilter(cat.id)}
+                    className={`min-h-[40px] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 snap-start cursor-pointer ${
+                      activeFilter === cat.id
+                        ? "bg-brand-magenta text-white shadow-md"
+                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </motion.div>
+            )}
           </div>
-        ) : layoutMode === "carousel" ? (
-          /* Carousel layout mode */
-          <div className="flex lg:grid lg:grid-cols-3 items-stretch gap-3 md:gap-4 overflow-x-auto lg:overflow-visible pb-8 lg:pb-0 snap-x snap-mandatory scroll-smooth -mx-6 px-6 md:-mx-12 md:px-12 lg:mx-0 lg:px-0 scroll-pl-6 md:scroll-pl-12 scrollbar-none">
-            {projectsToRender.map((project, idx) => {
-              const videoSource = project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
-              const thumbImage = project.thumbnail && !isVideoFile(project.thumbnail) ? project.thumbnail : (project.images[0]?.url || project.thumbnail);
 
-              return (
-                <div 
-                  key={project.id} 
-                  className="min-w-[75vw] sm:min-w-[40vw] lg:min-w-0 snap-start snap-always shrink-0 lg:shrink flex w-full"
-                >
-                  <Link href={`/portfolio/${project.slug}`} className="group w-full flex flex-col h-full">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: idx * 0.05 }}
-                      className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-black flex flex-col"
-                    >
-                      {videoSource ? (
-                        <VideoHoverCard 
-                          thumbnail={thumbImage} 
-                          videoSrc={videoSource} 
-                          title={project.title} 
-                        />
-                      ) : (
-                        <img
-                          src={project.thumbnail}
-                          alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                      
-                      <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                          {((project.categories && project.categories.length > 0) ? project.categories : (project.category ? [project.category] : [])).map((cat, cIdx) => (
-                            <span key={cIdx} className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">
-                              {cat.name}
-                            </span>
-                          ))}
-                          {videoSource && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
-                              <Play size={8} fill="currentColor" /> Hover to Play
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="font-heading text-xs sm:text-base md:text-lg font-bold text-white mb-1 line-clamp-1">{project.title}</h3>
-                        {project.client && <p className="text-[9px] sm:text-xs text-white/70 mb-1">Klien: {project.client}</p>}
-                        
-                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1 sm:mt-2">
-                          <ArrowUpRight size={12} className="text-white" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* Standard Grid Layout */
-          <motion.div layout className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-            <AnimatePresence>
-              {projectsToRender.map(project => {
-                const videoSource = project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
-                const thumbImage = project.thumbnail && !isVideoFile(project.thumbnail) ? project.thumbnail : (project.images[0]?.url || project.thumbnail);
+          {/* Portfolios Display */}
+          {projectsToRender.length === 0 ? (
+            <div className="py-12 text-center text-zinc-600 flex flex-col items-center gap-2 border border-dashed border-zinc-300 rounded-2xl">
+              <FolderOpen className="h-8 w-8 text-zinc-500" aria-hidden="true" />
+              <p className="text-sm">
+                Belum ada proyek portofolio yang dipublikasikan dalam kategori ini.
+              </p>
+            </div>
+          ) : layoutMode === "carousel" ? (
+            <div className="flex lg:grid lg:grid-cols-3 items-stretch gap-3.5 md:gap-5 overflow-x-auto lg:overflow-visible pb-6 lg:pb-0 snap-x snap-mandatory scroll-smooth -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 scroll-pl-6 md:scroll-pl-10 scrollbar-none">
+              {projectsToRender.map((project, idx) => {
+                const videoSource =
+                  project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
+                const thumbImage =
+                  project.thumbnail && !isVideoFile(project.thumbnail)
+                    ? project.thumbnail
+                    : project.images[0]?.url || project.thumbnail;
 
                 return (
-                  <Link href={`/portfolio/${project.slug}`} key={project.id} className="block group">
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.4 }}
-                      className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-black"
+                  <div
+                    key={project.id}
+                    className="min-w-[78vw] sm:min-w-[44vw] lg:min-w-0 snap-start snap-always shrink-0 lg:shrink flex w-full"
+                  >
+                    <Link
+                      href={`/portfolio/${project.slug}`}
+                      className="group w-full flex flex-col h-full focus-visible:outline-2 focus-visible:outline-brand-magenta rounded-2xl"
                     >
-                      {videoSource ? (
-                        <VideoHoverCard 
-                          thumbnail={thumbImage} 
-                          videoSrc={videoSource} 
-                          title={project.title} 
-                        />
-                      ) : (
-                        <img
-                          src={project.thumbnail}
-                          alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                      
-                      <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                        <div className="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
-                          {((project.categories && project.categories.length > 0) ? project.categories : (project.category ? [project.category] : [])).map((cat, cIdx) => (
-                            <span key={cIdx} className="text-[#FFD400] font-medium text-[10px] sm:text-sm">
-                              {cat.name}
-                            </span>
-                          ))}
-                          {videoSource && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
-                              <Play size={9} fill="currentColor" /> Hover to Play
-                            </span>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: idx * 0.05 }}
+                        className="relative w-full h-full aspect-video rounded-2xl overflow-hidden cursor-pointer bg-brand-dark flex flex-col"
+                      >
+                        {videoSource ? (
+                          <VideoHoverCard
+                            thumbnail={thumbImage}
+                            videoSrc={videoSource}
+                            title={project.title}
+                          />
+                        ) : (
+                          <Image
+                            src={project.thumbnail}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 45vw, 33vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                        <div className="absolute inset-0 p-3.5 sm:p-4 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
+                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                            {(project.categories && project.categories.length > 0
+                              ? project.categories
+                              : project.category
+                                ? [project.category]
+                                : []
+                            ).map((cat, cIdx) => (
+                              <span
+                                key={cIdx}
+                                className="text-brand-yellow font-bold text-xs tracking-wider uppercase"
+                              >
+                                {cat.name}
+                              </span>
+                            ))}
+                            {videoSource && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand-magenta/90 text-xs text-white font-medium">
+                                <Play size={9} fill="currentColor" aria-hidden="true" /> Video
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-heading text-xs sm:text-sm md:text-base font-bold text-white mb-0.5 line-clamp-1">
+                            {project.title}
+                          </h3>
+                          {project.client && (
+                            <p className="text-xs text-white/85 mb-1">Klien: {project.client}</p>
                           )}
+
+                          <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1">
+                            <ArrowUpRight size={13} className="text-white" aria-hidden="true" />
+                          </div>
                         </div>
-                        <h3 className="font-heading text-xs sm:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 leading-tight">{project.title}</h3>
-                        {project.client && <p className="text-[9px] sm:text-xs text-white/50 mb-1 sm:mb-2">Klien: {project.client}</p>}
-                        
-                        <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2 sm:mt-4">
-                          <ArrowUpRight size={14} className="text-white" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
+                      </motion.div>
+                    </Link>
+                  </div>
                 );
               })}
-            </AnimatePresence>
-          </motion.div>
-        )}
+            </div>
+          ) : (
+            <motion.div
+              layout
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"
+            >
+              <AnimatePresence>
+                {projectsToRender.map((project) => {
+                  const videoSource =
+                    project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
+                  const thumbImage =
+                    project.thumbnail && !isVideoFile(project.thumbnail)
+                      ? project.thumbnail
+                      : project.images[0]?.url || project.thumbnail;
 
-        {layoutMode === "carousel" && projectsToRender.length > 0 && (
-          <div className="text-center mt-10">
-            <Link href="/portfolio">
-              <span className="px-8 py-3.5 rounded-full bg-brand-yellow hover:bg-brand-magenta hover:text-white text-black font-semibold text-sm transition-all cursor-pointer inline-block shadow-md">
+                  return (
+                    <Link
+                      href={`/portfolio/${project.slug}`}
+                      key={project.id}
+                      className="block group focus-visible:outline-2 focus-visible:outline-brand-magenta rounded-2xl"
+                    >
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.94 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.94 }}
+                        transition={{ duration: 0.35 }}
+                        className="relative aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer bg-brand-dark"
+                      >
+                        {videoSource ? (
+                          <VideoHoverCard
+                            thumbnail={thumbImage}
+                            videoSrc={videoSource}
+                            title={project.title}
+                          />
+                        ) : (
+                          <Image
+                            src={project.thumbnail}
+                            alt={project.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                        <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            {(project.categories && project.categories.length > 0
+                              ? project.categories
+                              : project.category
+                                ? [project.category]
+                                : []
+                            ).map((cat, cIdx) => (
+                              <span key={cIdx} className="text-brand-yellow font-semibold text-xs">
+                                {cat.name}
+                              </span>
+                            ))}
+                            {videoSource && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-brand-magenta/90 text-xs text-white font-medium">
+                                <Play size={9} fill="currentColor" aria-hidden="true" /> Video
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-heading text-sm sm:text-xl font-bold text-white mb-1 line-clamp-2 leading-tight">
+                            {project.title}
+                          </h3>
+                          {project.client && (
+                            <p className="text-xs text-white/80 mb-1.5">Klien: {project.client}</p>
+                          )}
+
+                          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-1.5">
+                            <ArrowUpRight size={14} className="text-white" aria-hidden="true" />
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
+          {layoutMode === "carousel" && projectsToRender.length > 0 && (
+            <div className="text-center mt-8">
+              <Link
+                href="/portfolio"
+                className="min-h-[44px] px-7 py-3 rounded-full bg-brand-yellow hover:bg-brand-magenta hover:text-white text-brand-dark font-semibold text-xs sm:text-sm transition-all inline-flex items-center justify-center shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta"
+              >
                 Lihat Semua Portofolio
-              </span>
-            </Link>
-          </div>
-        )}
-      </div>
-    </section>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+    </MotionConfig>
   );
 }

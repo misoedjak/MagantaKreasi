@@ -1,7 +1,28 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, MotionConfig } from "framer-motion";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+export interface ShowcaseProject {
+  id: string;
+  title: string;
+  slug: string;
+  client: string | null;
+  thumbnail: string;
+  videoUrl?: string | null;
+  categories?: { id: string; name: string; slug?: string }[];
+  images?: { id: string; url: string; order: number }[];
+}
 
 interface HeroProps {
   settings?: {
@@ -13,132 +34,279 @@ interface HeroProps {
     portfolioText: string;
     portfolioLink: string;
   } | null;
+  showcaseProjects?: ShowcaseProject[];
 }
 
-export default function Hero({ settings }: HeroProps) {
-  const headingRaw = settings?.heading || "Vendor Booth Pameran & <br class=\"hidden md:block\" /> <span class=\"text-brand-yellow whitespace-nowrap\">Kontraktor Event</span> Premium.";
-  const heading = headingRaw.includes("{") && headingRaw.includes("}")
-    ? headingRaw.replace(/\{([^}]+)\}/g, '<span class="text-brand-yellow font-bold whitespace-nowrap">$1</span>')
-    : headingRaw;
-  const subheading = settings?.subheading || "Solusi fabrikasi dan dekorasi event premium. Dari pembuatan booth pameran custom hingga panggung festival berskala besar.";
+const FALLBACK_SHOWCASE: ShowcaseProject[] = [
+  {
+    id: "fallback-cedea",
+    title: "CEDEA 20th Anniversary - Behind The Build",
+    slug: "cedea-20th-anniversary-behind-the-build",
+    client: "CEDEA Seafood & Creo Production",
+    thumbnail: "/uploads/portfolio/DVN1Mi_ExXe_1.jpg",
+    videoUrl: "/uploads/portfolio/cedea-anniversary.mp4",
+    categories: [{ id: "c0", name: "Totem & Signage" }],
+  },
+];
+
+function isVideoFile(url?: string | null) {
+  if (!url) return false;
+  return url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".mov");
+}
+
+export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
+  const headingText = "In-House Event Workshop Production Premium";
+  const subheading =
+    "Dikerjakan langsung oleh tim produksi di workshop kami sendiri—lebih rapi, tepat waktu, dan siap pasang di lokasi acara.";
   const bgImageUrl = settings?.bgImageUrl || "/uploads/backgrounds/hero-flame-fest.jpg";
-  const ctaText = settings?.ctaText || "Konsultasi Sekarang";
+  const ctaText = settings?.ctaText || "Pesan disini";
   const ctaLink = settings?.ctaLink || "#contact";
-  const portfolioText = settings?.portfolioText || "Lihat Portofolio";
-  const portfolioLink = settings?.portfolioLink || "#portfolio";
+
+  // Video #1 as the Hero Background
+  const items =
+    showcaseProjects.length > 0 ? showcaseProjects : FALLBACK_SHOWCASE;
+  const videoOne = items[0] || FALLBACK_SHOWCASE[0];
+
+  const heroVideoSrc =
+    videoOne?.videoUrl ||
+    (isVideoFile(videoOne?.thumbnail) ? videoOne?.thumbnail : null);
+  const heroPosterImg =
+    videoOne?.thumbnail && !isVideoFile(videoOne?.thumbnail)
+      ? videoOne.thumbnail
+      : videoOne?.images?.[0]?.url || bgImageUrl;
+
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false); // Sound ON by default, fallback to unlock on first interaction
+  const [progress, setProgress] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !heroVideoSrc) return;
+
+    video.muted = isMuted;
+
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+          videoRef.current.play().catch(() => {
+            setIsPlaying(false);
+          });
+
+          const unlockAudio = () => {
+            if (videoRef.current) {
+              videoRef.current.muted = false;
+              setIsMuted(false);
+            }
+            window.removeEventListener("pointerdown", unlockAudio);
+            window.removeEventListener("keydown", unlockAudio);
+          };
+          window.addEventListener("pointerdown", unlockAudio, { once: true });
+          window.addEventListener("keydown", unlockAudio, { once: true });
+        }
+      });
+    }
+  }, [heroVideoSrc]);
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (video && video.duration > 0) {
+      setProgress((video.currentTime / video.duration) * 100);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextPct = Number(e.target.value);
+    setProgress(nextPct);
+    const video = videoRef.current;
+    if (video && video.duration > 0) {
+      video.currentTime = (nextPct / 100) * video.duration;
+    }
+  };
+
+  const togglePlayPause = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play().catch(() => {});
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleMute = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    if (videoRef.current) {
+      videoRef.current.muted = next;
+    }
+  };
 
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden py-16 sm:py-24 md:py-32 bg-white" suppressHydrationWarning>
-      {/* Background Image / Video Placeholder */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 0 100%)" }}
+    <MotionConfig reducedMotion="user">
+      <section
+        className="relative min-h-screen h-dvh w-full flex items-center justify-center overflow-hidden pt-20 pb-20 bg-brand-dark"
+        suppressHydrationWarning
       >
-        <div className="absolute inset-0 bg-black/65 z-10" />
-        <motion.img
-          src={bgImageUrl}
-          alt="Concert Stage"
-          initial={{ scale: 1.15, opacity: 0 }}
-          animate={{ scale: 1.05, opacity: 0.8 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-          className="w-full h-full object-cover"
-        />
-      </div>
+        {/* GPU-Accelerated SVG Unsharp Mask Filter to Sharpen 720p Reel Video at Fullscreen */}
+        <svg className="sr-only" aria-hidden="true">
+          <defs>
+            <filter id="hero-hd-sharpen" colorInterpolationFilters="sRGB">
+              <feConvolveMatrix
+                order="3 3"
+                preserveAlpha="true"
+                kernelMatrix="0 -0.35 0 -0.35 2.4 -0.35 0 -0.35 0"
+              />
+            </filter>
+          </defs>
+        </svg>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-20 pb-16 pt-20 sm:pt-0">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-4 sm:mb-6 text-white drop-shadow-md"
-              dangerouslySetInnerHTML={{ __html: heading }}
+        {/* Full-Screen Background Video #1 (object-cover object-top: anchored at top, crops only bottom) */}
+        <div className="absolute inset-0 z-0 bg-brand-dark overflow-hidden">
+          <Image
+            src={heroPosterImg}
+            alt={videoOne?.title || "Maganta Kreasi"}
+            fill
+            priority
+            quality={100}
+            sizes="100vw"
+            className="object-cover object-top"
+          />
+
+          {heroVideoSrc && (
+            <video
+              ref={videoRef}
+              src={heroVideoSrc}
+              poster={heroPosterImg}
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+              preload="auto"
+              onTimeUpdate={handleTimeUpdate}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              style={{
+                filter: "url(#hero-hd-sharpen) contrast(1.08) saturate(1.06)",
+                transform: "translateZ(0)",
+                backfaceVisibility: "hidden",
+              }}
+              className="absolute inset-0 z-10 w-full h-full object-cover object-top"
             />
+          )}
 
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-              className="text-xs sm:text-base md:text-lg text-zinc-300 mb-8 sm:mb-10 max-w-2xl leading-relaxed drop-shadow-sm"
-            >
-              {subheading}
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-              className="grid grid-cols-2 sm:flex sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto"
-            >
-              <a
-                href={ctaLink}
-                className="flex items-center justify-center gap-1.5 px-4 py-3 sm:px-6 sm:py-3 rounded-full bg-brand-yellow text-black font-semibold text-xs sm:text-base hover:bg-white hover:scale-105 transition-all duration-300 shadow-md shadow-brand-yellow/10"
-              >
-                {ctaText} <ArrowRight size={16} />
-              </a>
-              <a
-                href={portfolioLink}
-                className="flex items-center justify-center gap-1.5 px-4 py-3 sm:px-6 sm:py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold text-xs sm:text-base hover:bg-white/20 transition-all duration-300"
-              >
-                <Play size={16} /> {portfolioText}
-              </a>
-            </motion.div>
-          </div>
-
-          {/* Right Floating Showcase Box (Desktop Only) */}
-          <motion.div
-            initial={{ opacity: 0, x: 50, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-            className="hidden lg:col-span-5 lg:flex flex-col gap-6 p-8 rounded-3xl bg-gradient-to-br from-brand-magenta via-[#9e2150] to-[#7c153d] border border-white/20 shadow-2xl relative overflow-hidden group shadow-brand-magenta/35 animate-in fade-in duration-700"
-          >
-            {/* Glossy gradient overlays & glass reflections */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none -z-10 group-hover:bg-white/15 transition-all duration-500" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brand-yellow/10 rounded-full blur-3xl pointer-events-none -z-10" />
-
-            <div className="flex items-center gap-2.5">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 backdrop-blur-sm">
-                <span className="w-2 h-2 rounded-full bg-brand-yellow shadow-[0_0_8px_#FFD400] animate-pulse" />
-                <span className="text-[9px] uppercase tracking-widest text-brand-yellow font-extrabold">Highlight Perusahaan</span>
-              </span>
-            </div>
-
-            <h3 className="font-heading text-xl sm:text-2xl font-bold text-white leading-tight tracking-tight mt-1">
-              Kontraktor & Fabrikasi <br />Event Terpercaya
-            </h3>
-
-             <div className="grid grid-cols-2 gap-4 mt-2">
-              <div className="p-4 rounded-2xl bg-white/20 border border-white/25 flex flex-col hover:bg-white/25 hover:border-white/30 hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden shadow-md shadow-black/10">
-                <span className="font-heading text-3xl font-extrabold text-brand-yellow tracking-tight drop-shadow-sm">500+</span>
-                <span className="text-[10px] text-pink-100/90 font-bold uppercase tracking-wider mt-1.5">Project Selesai</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/20 border border-white/25 flex flex-col hover:bg-white/25 hover:border-white/30 hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden shadow-md shadow-black/10">
-                <span className="font-heading text-3xl font-extrabold text-brand-yellow tracking-tight drop-shadow-sm">100%</span>
-                <span className="text-[10px] text-pink-100/90 font-bold uppercase tracking-wider mt-1.5">In-house Production</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3 pt-4 border-t border-white/15 text-xs text-white/90">
-              <div className="flex items-center gap-3 group/item">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 flex items-center justify-center group-hover/item:bg-brand-yellow/20 transition-colors">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-                </span>
-                <span className="font-medium">Workshop In-House Pribadi Seluas 2000m²</span>
-              </div>
-              <div className="flex items-center gap-3 group/item">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 flex items-center justify-center group-hover/item:bg-brand-yellow/20 transition-colors">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-                </span>
-                <span className="font-medium">Pengiriman & Pemasangan Seluruh Indonesia</span>
-              </div>
-            </div>
-          </motion.div>
-
+          {/* Subtle Editorial Scrim so Video Stays Crisp & Vivid */}
+          <div className="absolute inset-0 bg-black/20 z-20 pointer-events-none" />
         </div>
-      </div>
-    </section>
+
+        {/* Centered Single-Column Hero Composition */}
+        <div className="max-w-4xl w-full mx-auto px-6 md:px-10 relative z-30 flex flex-col items-center text-center">
+          {/* Centered Display Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold leading-[1.08] tracking-tight text-white mb-5 max-w-3xl drop-shadow-lg"
+          >
+            {headingText}
+          </motion.h1>
+
+          {/* Centered 2-Line Subheading */}
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+            className="text-sm sm:text-base md:text-lg text-zinc-200/90 max-w-xl leading-relaxed mb-8 drop-shadow-sm"
+          >
+            {subheading}
+          </motion.p>
+
+          {/* Centered Pill CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18, ease: "easeOut" }}
+            className="flex items-center justify-center"
+          >
+            <a
+              href={ctaLink}
+              className="min-h-[44px] inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-brand-yellow text-brand-dark font-semibold text-sm hover:bg-white hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <span>{ctaText}</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+          </motion.div>
+        </div>
+
+        {/* Distilled Bottom-Left Controls: No Pill Soup, Just Clean Icons + Plain Link */}
+        {heroVideoSrc && (
+          <div className="absolute bottom-6 left-6 md:left-10 z-30 flex items-center gap-4 text-white/75">
+            <button
+              type="button"
+              onClick={togglePlayPause}
+              aria-label={isPlaying ? "Jeda video latar" : "Putar video latar"}
+              className="w-9 h-9 flex items-center justify-center text-white/80 hover:text-brand-yellow transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-yellow rounded-full"
+            >
+              {isPlaying ? (
+                <Pause size={16} aria-hidden="true" />
+              ) : (
+                <Play size={16} className="fill-current" aria-hidden="true" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={isMuted ? "Nyalakan suara video latar" : "Matikan suara video latar"}
+              className="w-9 h-9 flex items-center justify-center text-white/80 hover:text-brand-yellow transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-brand-yellow rounded-full"
+            >
+              {isMuted ? (
+                <VolumeX size={16} aria-hidden="true" />
+              ) : (
+                <Volume2 size={16} aria-hidden="true" />
+              )}
+            </button>
+
+            <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
+
+            <Link
+              href={`/portfolio/${videoOne.slug}`}
+              className="inline-flex items-center gap-1 text-xs font-medium text-white/70 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-brand-yellow rounded"
+            >
+              <span>{videoOne.title}</span>
+              <ArrowUpRight size={13} aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+
+        {/* Flush Bottom-Edge Progress Line (Zero Pill Containers) */}
+        {heroVideoSrc && (
+          <div className="group/scrub absolute inset-x-0 bottom-0 z-30 h-4 flex items-end">
+            <div className="w-full h-[3px] group-hover/scrub:h-1.5 bg-white/15 transition-all overflow-hidden">
+              <div
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                className="h-full bg-brand-yellow transition-[width] duration-100 ease-linear"
+              />
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={0.1}
+              value={Number.isFinite(progress) ? progress : 0}
+              onChange={handleSeek}
+              aria-label={`Durasi video ${videoOne.title}`}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+        )}
+      </section>
+    </MotionConfig>
   );
 }

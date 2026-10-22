@@ -13,30 +13,21 @@ import Process from "@/components/Process";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 
-export const revalidate = 0; // Fresh database query on load
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  let settings = await prisma.settings.findFirst();
-  
-  if (!settings) {
-    settings = {
-      siteName: "Maganta Kreasi",
-      seoTitle: "Maganta Kreasi - Premium Event Fabrication & Decoration",
-      seoDesc: "Jasa fabrikasi booth pameran, panggung event, backdrop dekorasi, gate masuk, dan signage berkualitas tinggi untuk kesuksesan event Anda.",
-      faviconUrl: "/favicon.ico",
-      logoUrl: null,
-      id: "default",
-      gaId: null,
-      updatedAt: new Date()
-    };
-  }
+  const settings = await prisma.settings.findFirst();
 
   return {
-    title: settings.seoTitle || "Maganta Kreasi - Premium Event Fabrication & Decoration",
-    description: settings.seoDesc || "Jasa fabrikasi booth pameran, panggung event, backdrop dekorasi, gate masuk, dan signage berkualitas tinggi.",
+    title:
+      settings?.seoTitle ||
+      "Maganta Kreasi - In-House Event Workshop Production Premium",
+    description:
+      settings?.seoDesc ||
+      "Jasa fabrikasi booth pameran, panggung event, backdrop dekorasi, gate masuk, dan signage berkualitas tinggi.",
     icons: {
-      icon: settings.faviconUrl || "/favicon.ico",
-    }
+      icon: settings?.faviconUrl || "/favicon.ico",
+    },
   };
 }
 
@@ -44,109 +35,143 @@ interface HomeProps {
   searchParams: Promise<{ event?: string }> | { event?: string };
 }
 
+const PREFERRED_HOMEPAGE_SLUGS = [
+  "cedea-20th-anniversary-behind-the-build",
+  "the-13th-ui-music-fair-stage-fabrication",
+  "christmas-symphony-recap-bxc-mall",
+  "inbody-indonesia-isfex-2024-recap",
+  "hut-astra-agro-lestari-36-setup",
+  "behind-the-booth-fast-track-installation",
+];
+
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const selectedEventId = params?.event;
 
-  // Query categories
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
-
-  // Query published portfolios with category, multi-category, and gallery images relations
-  const rawPortfolios = await prisma.portfolio.findMany({
-    where: { status: "published" },
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: {
-        select: { id: true, name: true, slug: true }
+  // Execute all independent database queries in parallel
+  const [
+    categories,
+    rawPreferredPortfolios,
+    profile,
+    advantages,
+    pipelineSteps,
+    dbClients,
+    clientPortfolios,
+    heroSettings,
+    aboutSettings,
+    statCards,
+    dbFeaturedProducts,
+  ] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.portfolio.findMany({
+      where: {
+        status: "published",
+        slug: { in: PREFERRED_HOMEPAGE_SLUGS },
       },
-      portfolioCategories: {
-        include: {
-          category: {
-            select: { id: true, name: true, slug: true }
-          }
-        }
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        portfolioCategories: {
+          include: {
+            category: { select: { id: true, name: true, slug: true } },
+          },
+        },
+        images: {
+          orderBy: { order: "asc" },
+          take: 1,
+        },
       },
-      images: {
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+    }),
+    prisma.companyProfile.findFirst(),
+    prisma.advantage.findMany({ orderBy: { order: "asc" } }),
+    prisma.pipelineStep.findMany({ orderBy: { order: "asc" } }),
+    prisma.client.findMany({ orderBy: { order: "asc" } }),
+    prisma.portfolio.findMany({
+      where: { status: "published" },
+      select: { client: true, slug: true },
+    }),
+    prisma.heroSettings.findFirst(),
+    prisma.aboutSettings.findFirst(),
+    prisma.statCard.findMany({ orderBy: { order: "asc" } }),
+    prisma.product.findMany({
+      where: { featured: true, status: "active" },
+      take: 8,
+      include: { category: true },
+    }),
+  ]);
 
-  const portfolios = rawPortfolios.map(p => ({
-    ...p,
-    categories: p.portfolioCategories && p.portfolioCategories.length > 0
-      ? p.portfolioCategories.map(pc => pc.category)
-      : p.category ? [p.category] : []
-  }));
+  const rawPortfolios =
+    rawPreferredPortfolios.length >= 6
+      ? rawPreferredPortfolios
+      : await prisma.portfolio.findMany({
+          where: { status: "published" },
+          orderBy: { createdAt: "desc" },
+          take: 6,
+          include: {
+            category: { select: { id: true, name: true, slug: true } },
+            portfolioCategories: {
+              include: {
+                category: { select: { id: true, name: true, slug: true } },
+              },
+            },
+            images: {
+              orderBy: { order: "asc" },
+              take: 1,
+            },
+          },
+        });
 
-  // Query Company Profile
-  const profile = await prisma.companyProfile.findFirst();
+  const portfolios = [...rawPortfolios]
+    .sort((a, b) => {
+      const idxA = PREFERRED_HOMEPAGE_SLUGS.indexOf(a.slug);
+      const idxB = PREFERRED_HOMEPAGE_SLUGS.indexOf(b.slug);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return 0;
+    })
+    .map((p) => ({
+      ...p,
+      categories:
+        p.portfolioCategories && p.portfolioCategories.length > 0
+          ? p.portfolioCategories.map((pc) => pc.category)
+          : p.category
+            ? [p.category]
+            : [],
+    }));
 
-  // Query advantages
-  const advantages = await prisma.advantage.findMany({
-    orderBy: { order: "asc" },
-  });
-
-  // Query pipeline steps
-  const pipelineSteps = await prisma.pipelineStep.findMany({
-    orderBy: { order: "asc" },
-  });
-
-  // Query clients and their matching portfolio slugs
-  const dbClients = await prisma.client.findMany({
-    orderBy: { order: "asc" },
-  });
-  const clientPortfolios = await prisma.portfolio.findMany({
-    where: { status: "published" },
-    select: { client: true, slug: true },
-  });
-  const clients = dbClients.map(c => {
-    const match = clientPortfolios.find(p => p.client?.toLowerCase() === c.name.toLowerCase());
+  const clients = dbClients.map((c) => {
+    const match = clientPortfolios.find(
+      (p) => p.client?.toLowerCase() === c.name.toLowerCase()
+    );
     return {
       id: c.id,
       name: c.name,
       logoUrl: c.logoUrl,
-      portfolioSlug: match ? match.slug : null
+      portfolioSlug: match ? match.slug : null,
     };
   });
 
-  // Query Hero Settings
-  const heroSettings = await prisma.heroSettings.findFirst();
+  const homepageProducts =
+    dbFeaturedProducts.length > 0
+      ? dbFeaturedProducts
+      : await prisma.product.findMany({
+          where: { status: "active" },
+          take: 8,
+          include: { category: true },
+        });
 
-  // Query About Settings
-  const aboutSettings = await prisma.aboutSettings.findFirst();
-
-  // Query Stat Cards
-  const statCards = await prisma.statCard.findMany({
-    orderBy: { order: "asc" },
-  });
-
-  // Query featured products for the homepage (or first 8 active as fallback)
-  const dbFeaturedProducts = await prisma.product.findMany({
-    where: { featured: true, status: "active" },
-    take: 8,
-    include: { category: true }
-  });
-
-  const homepageProducts = dbFeaturedProducts.length > 0
-    ? dbFeaturedProducts
-    : await prisma.product.findMany({
-        where: { status: "active" },
-        take: 8,
-        include: { category: true }
-      });
+  const contactWhatsapp = profile?.whatsapp || profile?.phone || "6282115151515";
 
   return (
-    <main className="min-h-screen bg-brand-light text-brand-dark font-sans selection:bg-[#FFD400] selection:text-black">
-      <Navbar whatsappNumber={profile?.whatsapp || profile?.phone || "6282115151515"} />
-      <Hero settings={heroSettings} />
-      <About settings={aboutSettings} stats={statCards} />
-      <FeaturedProducts 
-        products={homepageProducts} 
-        whatsappNumber={profile?.whatsapp || profile?.phone || "6282115151515"} 
+    <main className="min-h-screen bg-brand-light text-brand-dark font-sans selection:bg-brand-yellow selection:text-brand-dark">
+      <Navbar
+        whatsappNumber={contactWhatsapp}
+        email={profile?.email}
+        phoneDisplay={profile?.phone || profile?.whatsapp}
       />
+      <Hero settings={heroSettings} showcaseProjects={portfolios} />
+      <About settings={aboutSettings} stats={statCards} />
+      <FeaturedProducts products={homepageProducts} whatsappNumber={contactWhatsapp} />
       <Clients clients={clients} />
       <Services categories={categories} />
       <Portfolio initialPortfolios={portfolios} categories={categories} layoutMode="carousel" />

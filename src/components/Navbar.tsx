@@ -1,32 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, MessageCircle, Settings, Edit3, Lock, Smartphone } from "lucide-react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { Menu, X, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { toast } from "sonner";
 
 interface NavbarProps {
   whatsappNumber?: string;
+  email?: string | null;
+  phoneDisplay?: string | null;
 }
 
-export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps) {
+export default function Navbar({
+  whatsappNumber = "6282115151515",
+  email = "hello@magantakreasi.id",
+  phoneDisplay = "+62 821 1515 1515",
+}: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [devToolOpen, setDevToolOpen] = useState(false);
-  const [visualEditActive, setVisualEditActive] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
-    handleScroll(); // Set initial scroll state on mount
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Prevent background scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -38,32 +39,6 @@ export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps
     };
   }, [mobileMenuOpen]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl + E or Cmd + E
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "e") {
-        e.preventDefault();
-        const isEditMode = document.designMode === "on";
-        document.designMode = isEditMode ? "off" : "on";
-        
-        if (isEditMode) {
-          toast.success("Mode Edit Visual Dinonaktifkan", {
-            description: "Editan browser bersifat sementara. Gunakan Dashboard Admin untuk menyimpan permanen.",
-            duration: 5000,
-          });
-        } else {
-          toast.success("Mode Edit Visual Diaktifkan!", {
-            description: "Klik dan ketik teks apa saja pada halaman untuk mengubahnya langsung.",
-            duration: 6000,
-          });
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   const navLinks = [
     { name: "Beranda", href: "/" },
     { name: "Tentang Kami", href: "/#about" },
@@ -74,56 +49,70 @@ export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps
     { name: "Hubungi Kami", href: "/#contact" },
   ];
 
-
+  const cleanWhatsapp = (() => {
+    let clean = whatsappNumber.replace(/[^0-9]/g, "");
+    if (clean.startsWith("0")) {
+      clean = "62" + clean.substring(1);
+    }
+    return clean;
+  })();
 
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <motion.nav
         suppressHydrationWarning
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        aria-label="Navigasi Utama"
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           mobileMenuOpen
-            ? "bg-transparent py-2.5"
-            : scrolled 
-              ? "bg-brand-magenta/95 backdrop-blur-md py-2.5 lg:py-4 border-b border-white/10 shadow-lg shadow-black/10" 
-              : "bg-brand-magenta/95 backdrop-blur-md py-3 lg:py-5 border-b border-white/10 shadow-lg shadow-black/10"
+            ? "bg-transparent py-2"
+            : scrolled
+              ? "bg-brand-magenta/95 backdrop-blur-md py-2 lg:py-2.5 border-b border-white/10 shadow-lg shadow-black/10"
+              : "bg-brand-magenta/95 backdrop-blur-md py-2.5 lg:py-3 border-b border-white/10 shadow-lg shadow-black/10"
         }`}
       >
-        <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="font-heading text-xl md:text-2xl font-bold tracking-wider text-white">
-              MAGANTA<span className="text-[#FFD400]">KREASI</span>
-            </span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-lg"
+            >
+              <span className="font-heading text-lg md:text-xl font-bold tracking-wider text-white">
+                MAGANTA<span className="text-brand-yellow">KREASI</span>
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium text-white/80 hover:text-[#FFD400] transition-all relative py-1.5 group"
+                className="text-xs font-medium text-white/90 hover:text-brand-yellow transition-all relative py-1.5 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-sm"
               >
                 <span>{link.name}</span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FFD400] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-yellow transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
             <Link
               href={`${pathname}?quote=open`}
-              className="px-6 py-2.5 rounded-full bg-[#FFD400] text-black font-semibold hover:bg-white hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-[#FFD400]/25"
+              className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-brand-yellow text-brand-dark text-xs font-bold hover:bg-white hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              Pesan disini
+              Pesan di Sini
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle (44x44px touch target) */}
           <button
-            className="md:hidden text-white z-50 relative p-2 active:scale-95 transition-transform"
+            type="button"
+            className="md:hidden text-white z-50 relative w-11 h-11 inline-flex items-center justify-center rounded-xl active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-brand-yellow"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+            aria-expanded={mobileMenuOpen}
           >
             <motion.div
               key={mobileMenuOpen ? "close" : "menu"}
@@ -132,35 +121,38 @@ export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              {mobileMenuOpen ? <X size={24} className="text-[#FFD400]" /> : <Menu size={24} />}
+              {mobileMenuOpen ? (
+                <X size={22} className="text-brand-yellow" aria-hidden="true" />
+              ) : (
+                <Menu size={22} aria-hidden="true" />
+              )}
             </motion.div>
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Drawer */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-40 bg-brand-magenta/95 backdrop-blur-xl flex flex-col justify-between p-8 pt-28 md:hidden"
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-40 bg-brand-magenta/98 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-8 pt-24 md:hidden overflow-y-auto"
             >
-              {/* Nav links */}
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-5">
                 {navLinks.map((link, idx) => (
                   <motion.div
                     key={link.name}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
-                    transition={{ delay: idx * 0.05, duration: 0.3 }}
+                    transition={{ delay: idx * 0.04, duration: 0.25 }}
                   >
                     <Link
                       href={link.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-3xl font-heading font-bold text-white hover:text-[#FFD400] transition-colors block"
+                      className="text-2xl font-heading font-bold text-white hover:text-brand-yellow transition-colors block py-1"
                     >
                       {link.name}
                     </Link>
@@ -168,24 +160,23 @@ export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps
                 ))}
               </div>
 
-              {/* Extra Info / CTA at bottom of menu */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                transition={{ delay: 0.3, duration: 0.3 }}
-                className="flex flex-col gap-5 border-t border-white/10 pt-6"
+                transition={{ delay: 0.2, duration: 0.25 }}
+                className="flex flex-col gap-5 border-t border-white/15 pt-6 mt-6"
               >
                 <Link
                   href={`${pathname}?quote=open`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-4 text-center rounded-full bg-[#FFD400] text-black font-bold text-lg hover:bg-white transition-colors block shadow-md"
+                  className="w-full min-h-[48px] py-3.5 flex items-center justify-center rounded-full bg-brand-yellow text-brand-dark font-bold text-base hover:bg-white transition-colors shadow-md"
                 >
-                  Pesan disini
+                  Pesan di Sini
                 </Link>
-                <div className="flex justify-between items-center text-[10px] text-white/60">
-                  <span>hello@magantakreasi.id</span>
-                  <span>+62 821 1515 1515</span>
+                <div className="flex flex-wrap justify-between items-center gap-2 text-xs text-white/80">
+                  <span>{email || "hello@magantakreasi.id"}</span>
+                  <span>{phoneDisplay || "+62 821 1515 1515"}</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -193,94 +184,16 @@ export default function Navbar({ whatsappNumber = "6282115151515" }: NavbarProps
         </AnimatePresence>
       </motion.nav>
 
-      {/* Floating WhatsApp Action Button (Mobile Only) */}
+      {/* Floating WhatsApp Action Button (Mobile Only, 56x56px target) */}
       <a
-        href={`https://wa.me/${(() => {
-          let clean = whatsappNumber.replace(/[^0-9]/g, "");
-          if (clean.startsWith("0")) {
-            clean = "62" + clean.substring(1);
-          }
-          return clean;
-        })()}`}
+        href={`https://wa.me/${cleanWhatsapp}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-40 md:hidden flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg shadow-[#25D366]/20 active:scale-95 transition-all hover:scale-105"
-        aria-label="Chat WhatsApp"
+        className="fixed bottom-6 right-6 z-40 md:hidden flex items-center justify-center w-14 h-14 bg-brand-whatsapp text-white rounded-full shadow-lg active:scale-95 transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow"
+        aria-label="Chat via WhatsApp"
       >
-        <MessageCircle size={28} className="fill-current" />
+        <MessageCircle size={28} className="fill-current" aria-hidden="true" />
       </a>
-
-      {/* Floating Developer Toolbar (Localhost Only) */}
-      {typeof window !== "undefined" && window.location.hostname === "localhost" && (
-        <div className="fixed bottom-6 left-6 z-50">
-          <button
-            onClick={() => setDevToolOpen(!devToolOpen)}
-            className="flex items-center justify-center w-12 h-12 bg-gray-900 text-[#FFD400] rounded-full shadow-xl border border-gray-800 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            aria-label="Developer Tools"
-          >
-            <Settings size={20} className={devToolOpen ? "animate-spin" : ""} />
-          </button>
-          
-          <AnimatePresence>
-            {devToolOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                className="absolute bottom-14 left-0 bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-2xl flex flex-col gap-3 min-w-[200px]"
-              >
-                <div className="text-[10px] font-bold text-gray-400 px-2 uppercase tracking-wider">
-                  Pengatur UI (Local)
-                </div>
-                
-                {/* Choice 1: Edit Teks */}
-                <button
-                  onClick={() => {
-                    const nextMode = document.designMode === "on" ? "off" : "on";
-                    document.designMode = nextMode;
-                    setVisualEditActive(nextMode === "on");
-                    toast.success(nextMode === "on" ? "Mode Edit Aktif!" : "Mode Edit Mati", {
-                      description: nextMode === "on" 
-                        ? "Klik teks mana saja pada halaman untuk mengubahnya langsung." 
-                        : "Perubahan bersifat sementara. Simpan di Admin untuk permanen."
-                    });
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${
-                    visualEditActive 
-                      ? "bg-[#be3168] text-white" 
-                      : "text-white/80 hover:bg-white/10"
-                  }`}
-                >
-                  <Edit3 size={14} /> 
-                  {visualEditActive ? "Matikan Edit Teks" : "Edit Teks Langsung"}
-                </button>
-
-                {/* Choice 2: Admin Panel */}
-                <Link
-                  href="/admin"
-                  target="_blank"
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 flex items-center gap-2 transition-colors cursor-pointer"
-                >
-                  <Lock size={14} /> Dashboard Admin
-                </Link>
-
-                {/* Choice 3: Device Emulator Info */}
-                <button
-                  onClick={() => {
-                    toast.info("Tampilan Responsive", {
-                      description: "Tekan F12 lalu klik ikon HP (Ctrl+Shift+M) di Chrome untuk melihat mode Mobile/Tablet.",
-                      duration: 8000
-                    });
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 flex items-center gap-2 transition-colors cursor-pointer"
-                >
-                  <Smartphone size={14} /> Tampilan Mobile
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
-    </>
+    </MotionConfig>
   );
 }
