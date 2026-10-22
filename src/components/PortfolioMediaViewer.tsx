@@ -17,9 +17,13 @@ interface PortfolioMediaViewerProps {
     description: string;
     thumbnail: string;
     videoUrl?: string | null;
-    category: {
+    category?: {
       name: string;
-    };
+    } | null;
+    categories?: {
+      id?: string;
+      name: string;
+    }[];
     images: {
       id: string;
       url: string;
@@ -176,10 +180,14 @@ export default function PortfolioMediaViewer({ portfolio, profile }: PortfolioMe
             {/* Right side: Project Profile Specs */}
             <div className="lg:col-span-5 space-y-8 bg-white border border-brand-magenta/10 rounded-3xl p-8 shadow-lg">
               <div className="space-y-4">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-brand-magenta text-white uppercase tracking-wider shadow-md shadow-brand-magenta/10">
-                  <Tag className="h-3 w-3" />
-                  <span>{portfolio.category.name}</span>
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  {((portfolio.categories && portfolio.categories.length > 0) ? portfolio.categories : (portfolio.category ? [portfolio.category] : [])).map((cat, idx) => (
+                    <span key={idx} className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-brand-magenta text-white uppercase tracking-wider shadow-md shadow-brand-magenta/10">
+                      <Tag className="h-3 w-3" />
+                      <span>{cat.name}</span>
+                    </span>
+                  ))}
+                </div>
                 <h1 className="font-heading text-3xl md:text-4xl font-bold leading-tight text-brand-dark">
                   {portfolio.title}
                 </h1>

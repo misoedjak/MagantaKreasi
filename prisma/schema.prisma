@@ -17,35 +17,47 @@ model User {
 }
 
 model Category {
-  id          String      @id @default(uuid())
-  name        String      @unique
-  slug        String      @unique
-  createdAt   DateTime    @default(now())
-  description String?
-  features    String?
-  bgImageUrl  String?
-  portfolios  Portfolio[]
+  id                  String              @id @default(uuid())
+  name                String              @unique
+  slug                String              @unique
+  createdAt           DateTime            @default(now())
+  description         String?
+  features            String?
+  bgImageUrl          String?
+  portfolios          Portfolio[]
+  portfolioCategories PortfolioCategory[]
 }
 
 model Portfolio {
-  id          String           @id @default(uuid())
-  title       String
-  slug        String           @unique
-  client      String?
+  id                  String              @id @default(uuid())
+  title               String
+  slug                String              @unique
+  client              String?
+  categoryId          String?
+  projectDate         DateTime?
+  location            String?
+  description         String
+  thumbnail           String
+  videoUrl            String?
+  featured            Boolean             @default(false)
+  status              String              @default("draft")
+  seoTitle            String?
+  seoDesc             String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  category            Category?           @relation(fields: [categoryId], references: [id])
+  portfolioCategories PortfolioCategory[]
+  images              PortfolioImage[]
+}
+
+model PortfolioCategory {
+  id          String    @id @default(uuid())
+  portfolioId String
   categoryId  String
-  projectDate DateTime?
-  location    String?
-  description String
-  thumbnail   String
-  videoUrl    String?
-  featured    Boolean          @default(false)
-  status      String           @default("draft")
-  seoTitle    String?
-  seoDesc     String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  category    Category         @relation(fields: [categoryId], references: [id])
-  images      PortfolioImage[]
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, categoryId])
 }
 
 model PortfolioImage {

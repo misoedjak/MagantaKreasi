@@ -170,7 +170,7 @@ export default async function AdminDashboardPage() {
                   </div>
                   <div className="space-y-0.5 min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">{project.title}</p>
-                    <p className="text-xs text-gray-500 truncate">{project.category.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{project.category?.name || 'Uncategorized'}</p>
                   </div>
                 </div>
               ))

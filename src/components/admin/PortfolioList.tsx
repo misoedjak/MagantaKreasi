@@ -40,8 +40,8 @@ interface PortfolioItem {
   title: string;
   slug: string;
   client: string | null;
-  categoryId: string;
-  category: { id: string; name: string };
+  categoryId: string | null;
+  category?: { id: string; name: string } | null;
   projectDate: Date | null;
   location: string | null;
   thumbnail: string;
@@ -173,7 +173,7 @@ export function PortfolioList({ initialPortfolios, categories }: PortfolioListPr
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="font-semibold text-gray-900">{project.title}</div>
-                    <div className="text-xs text-gray-500 font-mono">{project.category.name}</div>
+                    <div className="text-xs text-gray-500 font-mono">{project.category?.name || 'Uncategorized'}</div>
                   </TableCell>
                   <TableCell className="py-4">
                     <div className="text-sm text-gray-800">{project.client || "Not Specified"}</div>

@@ -16,6 +16,7 @@ export default async function EditPortfolioPage({ params }: EditPortfolioPagePro
   const portfolio = await prisma.portfolio.findUnique({
     where: { id },
     include: {
+      portfolioCategories: true,
       images: {
         orderBy: { order: "asc" }
       }
@@ -36,7 +37,8 @@ export default async function EditPortfolioPage({ params }: EditPortfolioPagePro
     title: portfolio.title,
     slug: portfolio.slug,
     client: portfolio.client || "",
-    categoryId: portfolio.categoryId,
+    categoryId: portfolio.categoryId || (portfolio.portfolioCategories[0]?.categoryId || ""),
+    categoryIds: portfolio.portfolioCategories.map(pc => pc.categoryId),
     projectDate: portfolio.projectDate,
     location: portfolio.location || "",
     description: portfolio.description,

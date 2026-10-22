@@ -11,13 +11,20 @@ interface PortfolioImage {
   order: number;
 }
 
+interface PortfolioCategoryItem {
+  id: string;
+  name: string;
+  slug?: string;
+}
+
 interface PortfolioItem {
   id: string;
   title: string;
   slug: string;
   client: string | null;
-  categoryId: string;
-  category: { id: string; name: string };
+  categoryId?: string | null;
+  category?: { id: string; name: string } | null;
+  categories?: PortfolioCategoryItem[];
   thumbnail: string;
   videoUrl?: string | null;
   featured: boolean;
@@ -249,8 +256,12 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent opacity-85 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       
                       <div className="absolute inset-0 p-3 sm:p-5 flex flex-col justify-end translate-y-2 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">{project.category.name}</span>
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          {((project.categories && project.categories.length > 0) ? project.categories : (project.category ? [project.category] : [])).map((cat, cIdx) => (
+                            <span key={cIdx} className="text-[#FFD400] font-bold text-[10px] sm:text-xs tracking-wider uppercase">
+                              {cat.name}
+                            </span>
+                          ))}
                           {videoSource && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-magenta/80 text-[9px] text-white font-medium">
                               <Play size={8} fill="currentColor" /> Hover to Play
@@ -304,8 +315,12 @@ export default function Portfolio({ initialPortfolios, categories, layoutMode = 
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       
                       <div className="absolute inset-0 p-4 sm:p-8 flex flex-col justify-end translate-y-4 group-hover:translate-y-0 transition-transform duration-300 pointer-events-none">
-                        <div className="flex items-center gap-2 mb-1 sm:mb-2">
-                          <span className="text-[#FFD400] font-medium text-[10px] sm:text-sm">{project.category.name}</span>
+                        <div className="flex items-center gap-2 mb-1 sm:mb-2 flex-wrap">
+                          {((project.categories && project.categories.length > 0) ? project.categories : (project.category ? [project.category] : [])).map((cat, cIdx) => (
+                            <span key={cIdx} className="text-[#FFD400] font-medium text-[10px] sm:text-sm">
+                              {cat.name}
+                            </span>
+                          ))}
                           {videoSource && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-brand-magenta/80 text-[10px] text-white font-medium">
                               <Play size={9} fill="currentColor" /> Hover to Play

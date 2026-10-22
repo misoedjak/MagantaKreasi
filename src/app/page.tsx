@@ -53,19 +53,33 @@ export default async function Home({ searchParams }: HomeProps) {
     orderBy: { name: "asc" },
   });
 
-  // Query published portfolios with category and gallery images relations
-  const portfolios = await prisma.portfolio.findMany({
+  // Query published portfolios with category, multi-category, and gallery images relations
+  const rawPortfolios = await prisma.portfolio.findMany({
     where: { status: "published" },
     orderBy: { createdAt: "desc" },
     include: {
       category: {
-        select: { id: true, name: true }
+        select: { id: true, name: true, slug: true }
+      },
+      portfolioCategories: {
+        include: {
+          category: {
+            select: { id: true, name: true, slug: true }
+          }
+        }
       },
       images: {
         orderBy: { order: "asc" }
       }
     }
   });
+
+  const portfolios = rawPortfolios.map(p => ({
+    ...p,
+    categories: p.portfolioCategories && p.portfolioCategories.length > 0
+      ? p.portfolioCategories.map(pc => pc.category)
+      : p.category ? [p.category] : []
+  }));
 
   // Query Company Profile
   const profile = await prisma.companyProfile.findFirst();

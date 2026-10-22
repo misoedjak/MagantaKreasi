@@ -25,6 +25,7 @@ interface PortfolioFormData {
   slug: string;
   client: string;
   categoryId: string;
+  categoryIds?: string[];
   projectDate: Date | null;
   location: string;
   description: string;
@@ -52,6 +53,29 @@ export function PortfolioForm({ categories, initialData }: PortfolioFormProps) {
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [client, setClient] = useState(initialData?.client || "");
   const [categoryId, setCategoryId] = useState(initialData?.categoryId || (categories[0]?.id || ""));
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
+    initialData?.categoryIds && initialData.categoryIds.length > 0
+      ? initialData.categoryIds
+      : (initialData?.categoryId ? [initialData.categoryId] : (categories[0]?.id ? [categories[0].id] : []))
+  );
+
+  const toggleCategory = (catId: string) => {
+    setSelectedCategoryIds((prev) => {
+      const exists = prev.includes(catId);
+      let updated: string[];
+      if (exists) {
+        if (prev.length <= 1) {
+          toast.warning("Setidaknya satu kategori harus dipilih");
+          return prev;
+        }
+        updated = prev.filter((id) => id !== catId);
+      } else {
+        updated = [...prev, catId];
+      }
+      setCategoryId(updated[0] || "");
+      return updated;
+    });
+  };
   
   // Format Date for Input Value (YYYY-MM-DD)
   const formatInputDate = (dateObj: Date | null | undefined) => {
