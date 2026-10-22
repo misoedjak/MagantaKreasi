@@ -50,6 +50,7 @@ next-env.d.ts
 .impeccable/config.local.json
 .impeccable/live/server.json
 .impeccable/live/sessions/
+.impeccable/
 .impeccable/live/previews/
 .impeccable/live/annotations/
 .impeccable/live/cache/
