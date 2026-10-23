@@ -76,7 +76,7 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
       : videoOne?.images?.[0]?.url || bgImageUrl;
 
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false); // Sound ON by default, fallback to unlock on first interaction
+  const [isMuted, setIsMuted] = useState(true); // Default muted
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -84,29 +84,12 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
     const video = videoRef.current;
     if (!video || !heroVideoSrc) return;
 
-    video.muted = isMuted;
+    video.muted = true;
 
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          setIsMuted(true);
-          videoRef.current.play().catch(() => {
-            setIsPlaying(false);
-          });
-
-          const unlockAudio = () => {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              setIsMuted(false);
-            }
-            window.removeEventListener("pointerdown", unlockAudio);
-            window.removeEventListener("keydown", unlockAudio);
-          };
-          window.addEventListener("pointerdown", unlockAudio, { once: true });
-          window.addEventListener("keydown", unlockAudio, { once: true });
-        }
+        setIsPlaying(false);
       });
     }
   }, [heroVideoSrc]);
