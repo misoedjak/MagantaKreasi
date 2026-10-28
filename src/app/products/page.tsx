@@ -39,14 +39,14 @@ export default async function ProductsPage() {
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none" />
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#be3168]/10 text-[#be3168] text-xs font-semibold uppercase tracking-wider mb-4">
-              <Package size={12} /> Equipment Rental
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-magenta/10 text-brand-magenta text-xs font-semibold uppercase tracking-wider mb-4">
+              <Package size={13} /> Katalog Penyewaan Peralatan Event
             </div>
-            <h1 className="font-heading text-4xl md:text-5xl font-bold tracking-tight text-brand-magenta leading-tight mb-4">
-              Premium Event <span className="text-[#FFD400] bg-[#be3168] px-3 py-1 rounded-lg">Catalog</span>
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-brand-magenta leading-tight mb-4">
+              Peralatan Event & <span className="text-brand-dark bg-brand-yellow px-3 py-1 rounded-lg">Produksi Panggung</span>
             </h1>
-            <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-xl">
-              Professional-grade event equipment inventory ready for lease. Find lighting setups, sound systems, and custom staging structures for events of any size.
+            <p className="text-gray-600 text-sm md:text-base leading-relaxed max-w-2xl">
+              Inventaris lengkap perlengkapan event, konser, dan pameran siap sewa. Dari sound system profesional, genset silent, tenda sarnafil & roder, pendingin ruangan, hingga furnitur VIP dengan dukungan teknisi panggung berpengalaman.
             </p>
           </div>
         </div>
