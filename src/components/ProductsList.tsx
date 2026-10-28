@@ -479,29 +479,49 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
         </div>
       ) : (
         <div className="space-y-10">
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            <AnimatePresence mode="popLayout">
-              {displayedProducts.map((product, idx) => {
-                const qtyInCart = getItemQuantity(product.id);
-                const formattedPrice =
-                  product.price > 0
-                    ? `${formatPrice(product.price)} / ${product.priceUnit}`
-                    : "Custom / Hubungi Tim";
+          <motion.div
+            key={`${selectedCategory}-${searchQuery}`}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.035,
+                  delayChildren: 0.02,
+                },
+              },
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6"
+          >
+            {displayedProducts.map((product, idx) => {
+              const qtyInCart = getItemQuantity(product.id);
+              const formattedPrice =
+                product.price > 0
+                  ? `${formatPrice(product.price)} / ${product.priceUnit}`
+                  : "Custom / Hubungi Tim";
 
-                return (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.25 }}
-                    key={product.id}
-                    className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col h-full ${
-                      qtyInCart > 0
-                        ? "border-brand-magenta ring-2 ring-brand-magenta/15 shadow-lg"
-                        : "border-gray-100 hover:shadow-xl hover:border-gray-200/90"
-                    }`}
-                  >
+              return (
+                <motion.div
+                  key={product.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 12 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.28,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                    },
+                  }}
+                  className={`group bg-white rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col h-full ${
+                    qtyInCart > 0
+                      ? "border-brand-magenta ring-2 ring-brand-magenta/15 shadow-lg"
+                      : "border-gray-100 hover:shadow-xl hover:border-gray-200/90"
+                  }`}
+                >
                     {/* Image Container with Next.js Image Optimization */}
                     <div className="relative aspect-square w-full bg-brand-gray overflow-hidden flex items-center justify-center shrink-0 border-b border-gray-100">
                       {product.image ? (
@@ -612,7 +632,6 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                   </motion.div>
                 );
               })}
-            </AnimatePresence>
           </motion.div>
 
           {/* Load More Pagination */}
