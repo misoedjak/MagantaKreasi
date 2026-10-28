@@ -116,7 +116,10 @@ export default function FeaturedProducts({ products, whatsappNumber }: FeaturedP
               className="flex items-stretch gap-4 md:gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 scroll-pl-6 md:scroll-pl-10 lg:scroll-pl-0 scrollbar-none"
             >
               {products.map((product, idx) => {
-                const formattedPrice = `${formatPrice(product.price)} / ${product.priceUnit}`;
+                const formattedPrice =
+                  product.price > 0
+                    ? `${formatPrice(product.price)} / ${product.priceUnit}`
+                    : "Custom / Hubungi Tim";
                 return (
                   <div
                     key={product.id}
@@ -168,10 +171,16 @@ export default function FeaturedProducts({ products, whatsappNumber }: FeaturedP
                               Harga Sewa
                             </span>
                             <span className="text-brand-magenta font-bold text-xs sm:text-sm truncate block">
-                              {formatPrice(product.price)}
-                              <span className="text-xs text-zinc-600 font-normal">
-                                /{product.priceUnit}
-                              </span>
+                              {product.price > 0 ? (
+                                <>
+                                  {formatPrice(product.price)}
+                                  <span className="text-xs text-zinc-600 font-normal">
+                                    /{product.priceUnit}
+                                  </span>
+                                </>
+                              ) : (
+                                "Custom / Hubungi Tim"
+                              )}
                             </span>
                           </div>
                           <button

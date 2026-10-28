@@ -144,7 +144,10 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
           >
             <AnimatePresence mode="popLayout">
               {displayedProducts.map((product) => {
-                const formattedPrice = `${formatPrice(product.price)} / ${product.priceUnit}`;
+                const formattedPrice =
+                  product.price > 0
+                    ? `${formatPrice(product.price)} / ${product.priceUnit}`
+                    : "Custom / Hubungi Tim";
               return (
                 <motion.div
                   layout
@@ -195,8 +198,14 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                         <div>
                           <span className="text-xs text-gray-400 block font-medium">Harga Sewa</span>
                           <span className="text-[#be3168] font-bold text-base md:text-lg">
-                            {formatPrice(product.price)}
-                            <span className="text-xs text-gray-500 font-medium"> / {product.priceUnit}</span>
+                            {product.price > 0 ? (
+                              <>
+                                {formatPrice(product.price)}
+                                <span className="text-xs text-gray-500 font-medium"> / {product.priceUnit}</span>
+                              </>
+                            ) : (
+                              "Custom / Hubungi Tim"
+                            )}
                           </span>
                         </div>
                         <button
