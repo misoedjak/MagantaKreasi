@@ -218,7 +218,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
 
     const cleanNumber = getCleanWhatsappNumber();
     let messageText = `Halo Maganta Kreasi, saya ingin mengajukan penawaran estimasi sewa untuk daftar peralatan berikut:\n\n`;
-    messageText += `📋 *DAFTAR PERALATAN SEWA:*\n`;
+    messageText += `*DAFTAR PERALATAN SEWA:*\n`;
 
     cart.forEach((item, index) => {
       const priceText =
@@ -230,17 +230,17 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
       messageText += `${index + 1}. *${item.product.name}*\n   - Qty: ${item.quantity} ${item.product.priceUnit}\n   - Tarif: ${priceText}\n`;
     });
 
-    messageText += `\n📊 *RINGKASAN ESTIMASI:*\n`;
-    messageText += `• Total Item: ${cart.length} jenis (${totalUnits} unit)\n`;
-    messageText += `• Estimasi Subtotal Sewa: *${formatPrice(totalEstimatedPrice)}*${
+    messageText += `\n*RINGKASAN ESTIMASI:*\n`;
+    messageText += `- Total Item: ${cart.length} jenis (${totalUnits} unit)\n`;
+    messageText += `- Estimasi Subtotal Sewa: *${formatPrice(totalEstimatedPrice)}*${
       hasCustomItems ? " (+ item custom/paket)" : ""
     }\n`;
 
     if (eventDate.trim() || eventLocation.trim() || eventNotes.trim()) {
-      messageText += `\n📍 *INFORMASI EVENT:*\n`;
-      if (eventDate.trim()) messageText += `• Tanggal Pelaksanaan: ${eventDate.trim()}\n`;
-      if (eventLocation.trim()) messageText += `• Lokasi/Venue: ${eventLocation.trim()}\n`;
-      if (eventNotes.trim()) messageText += `• Catatan Khusus: ${eventNotes.trim()}\n`;
+      messageText += `\n*INFORMASI EVENT:*\n`;
+      if (eventDate.trim()) messageText += `- Tanggal Pelaksanaan: ${eventDate.trim()}\n`;
+      if (eventLocation.trim()) messageText += `- Lokasi/Venue: ${eventLocation.trim()}\n`;
+      if (eventNotes.trim()) messageText += `- Catatan Khusus: ${eventNotes.trim()}\n`;
     }
 
     messageText += `\nMohon konfirmasi ketersediaan jadwal, penawaran resmi, dan detail pengiriman/instalasi. Terima kasih!`;
