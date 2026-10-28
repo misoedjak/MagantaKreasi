@@ -213,13 +213,13 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
   return (
     <div className="w-full relative">
       {/* Search & Category Filter Section */}
-      <div className="flex flex-col lg:flex-row gap-5 justify-between items-stretch lg:items-center mb-8">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center mb-4">
         {/* Category Tabs: Horizontal Scroll with Snap on Mobile, Wrap on Desktop */}
         <div className="w-full lg:max-w-4xl overflow-x-auto scrollbar-none snap-x py-1">
           <div className="flex items-center gap-2 min-w-max">
             <button
               onClick={() => setSelectedCategory("semua")}
-              className={`snap-start px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`snap-start px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 selectedCategory === "semua"
                   ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/25"
                   : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
@@ -234,7 +234,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`snap-start px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`snap-start px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     selectedCategory === cat.id
                       ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/25"
                       : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
@@ -248,13 +248,13 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
         </div>
 
         {/* Accessible Search Bar with Clear Button */}
-        <div className="relative w-full lg:w-80 shrink-0">
+        <div className="relative w-full lg:w-72 shrink-0">
           <label htmlFor="product-search" className="sr-only">
             Cari peralatan sewa event
           </label>
           <Search
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-            size={18}
+            size={16}
             aria-hidden="true"
           />
           <input
@@ -264,22 +264,22 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Cari peralatan sewa event"
-            className="w-full h-11 pl-10 pr-10 bg-white border border-gray-200 rounded-full text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-magenta/20 focus:border-brand-magenta shadow-sm"
+            className="w-full h-10 pl-9 pr-9 bg-white border border-gray-200 rounded-full text-xs sm:text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-magenta/20 focus:border-brand-magenta shadow-sm"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
               aria-label="Hapus kata kunci pencarian"
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 rounded-full transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1 rounded-full transition-colors"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           )}
         </div>
       </div>
 
       {/* Results Feedback Header */}
-      <div className="mb-6 flex flex-wrap justify-between items-center text-xs text-gray-500 gap-2">
+      <div className="mb-4 flex flex-wrap justify-between items-center text-xs text-gray-500 gap-2">
         <span className="font-medium">
           Menampilkan <span className="text-gray-900 font-bold">{Math.min(visibleCount, filteredProducts.length)}</span> dari{" "}
           <span className="text-gray-900 font-bold">{filteredProducts.length}</span> peralatan sewa
@@ -293,10 +293,10 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
 
       {/* Products Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm px-4">
-          <Info size={44} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="font-heading font-bold text-gray-800 text-lg mb-2">Peralatan Tidak Ditemukan</h3>
-          <p className="text-gray-500 text-sm max-w-md mx-auto mb-6">
+        <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm px-4">
+          <Info size={40} className="mx-auto text-gray-300 mb-3" />
+          <h3 className="font-heading font-bold text-gray-800 text-base mb-1.5">Peralatan Tidak Ditemukan</h3>
+          <p className="text-gray-500 text-xs sm:text-sm max-w-md mx-auto mb-5">
             Tidak ada perlengkapan yang sesuai dengan filter atau kata kunci &ldquo;{searchQuery}&rdquo;. Silakan reset
             pencarian atau hubungi tim kami untuk permintaan kustom.
           </p>
@@ -305,14 +305,14 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
               setSelectedCategory("semua");
               setSearchQuery("");
             }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-magenta text-white font-medium text-xs hover:bg-brand-magenta-hover transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-magenta text-white font-medium text-xs hover:bg-brand-magenta-hover transition-colors shadow-sm"
           >
-            <RotateCcw size={14} /> Reset Semua Filter
+            <RotateCcw size={13} /> Reset Semua Filter
           </button>
         </div>
       ) : (
-        <div className="space-y-12">
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
+        <div className="space-y-10">
+          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             <AnimatePresence mode="popLayout">
               {displayedProducts.map((product, idx) => {
                 const qtyInCart = getItemQuantity(product.id);
