@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,7 +16,10 @@ import {
   Calendar,
   MapPin,
   FileText,
+  ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  LayoutGrid,
   Check,
   RotateCcw
 } from "lucide-react";
@@ -70,6 +73,42 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
   const [eventDate, setEventDate] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [eventNotes, setEventNotes] = useState("");
+
+  // Category Scroll & Dropdown State
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+  const checkScroll = () => {
+    if (categoryScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = categoryScrollRef.current;
+      setCanScrollLeft(scrollLeft > 4);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+    }
+  };
+
+  useEffect(() => {
+    // Check initial scrollability after render
+    const timer = setTimeout(checkScroll, 100);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [categories, products]);
+
+  const scrollCategories = (direction: "left" | "right") => {
+    if (categoryScrollRef.current) {
+      const { clientWidth } = categoryScrollRef.current;
+      const offset = Math.max(clientWidth * 0.55, 200);
+      categoryScrollRef.current.scrollBy({
+        left: direction === "left" ? -offset : offset,
+        behavior: "smooth",
+      });
+      setTimeout(checkScroll, 350);
+    }
+  };
 
   // Reset pagination when category or search changes
   useEffect(() => {
@@ -213,37 +252,165 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
   return (
     <div className="w-full relative">
       {/* Search & Category Filter Section */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center mb-4">
-        {/* Category Tabs: Horizontal Scroll with Snap on Mobile, Wrap on Desktop */}
-        <div className="w-full lg:max-w-4xl overflow-x-auto scrollbar-none snap-x py-1">
-          <div className="flex items-center gap-2 min-w-max">
+      <div className="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center mb-4">
+        {/* Category Controls (Dropdown + Horizontal Carousel with Arrows) */}
+        <div className="flex items-center gap-2 min-w-0 flex-grow">
+          {/* Quick Dropdown: View all 14 categories at a glance */}
+          <div className="relative shrink-0">
             <button
-              onClick={() => setSelectedCategory("semua")}
-              className={`snap-start px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                selectedCategory === "semua"
-                  ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/25"
-                  : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
+              onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+              type="button"
+              className={`h-10 px-3.5 rounded-full border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                isCategoryDropdownOpen
+                  ? "bg-brand-magenta text-white border-brand-magenta shadow-md shadow-brand-magenta/20"
+                  : "bg-white text-gray-700 border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50 shadow-sm"
               }`}
+              title="Pilih kategori dari daftar"
+              aria-expanded={isCategoryDropdownOpen}
             >
-              Semua ({products.filter((p) => p.status === "active").length})
+              <LayoutGrid size={14} className={isCategoryDropdownOpen ? "text-white" : "text-brand-magenta"} />
+              <span className="hidden sm:inline">Pilih Kategori</span>
+              <span className="sm:hidden">Kategori</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
+              />
             </button>
-            {categories.map((cat) => {
-              const count = products.filter((p) => p.categoryId === cat.id && p.status === "active").length;
-              if (count === 0) return null;
-              return (
+
+            {/* Dropdown Menu Popup */}
+            <AnimatePresence>
+              {isCategoryDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setIsCategoryDropdownOpen(false)}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-2 z-40 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-2.5 max-h-80 overflow-y-auto"
+                  >
+                    <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1 mb-1">
+                      Kategori Peralatan Event
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedCategory("semua");
+                        setIsCategoryDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors text-left cursor-pointer ${
+                        selectedCategory === "semua"
+                          ? "bg-brand-magenta/10 text-brand-magenta font-bold"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span>Semua Produk</span>
+                      <span className="text-[11px] text-gray-400">
+                        {products.filter((p) => p.status === "active").length} alat
+                      </span>
+                    </button>
+                    <div className="h-px bg-gray-100 my-1" />
+                    {categories.map((cat) => {
+                      const count = products.filter(
+                        (p) => p.categoryId === cat.id && p.status === "active"
+                      ).length;
+                      if (count === 0) return null;
+                      const isSelected = selectedCategory === cat.id;
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            setSelectedCategory(cat.id);
+                            setIsCategoryDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors text-left cursor-pointer ${
+                            isSelected
+                              ? "bg-brand-magenta/10 text-brand-magenta font-bold"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span className="truncate">{cat.name}</span>
+                          <span className="text-[11px] text-gray-400 shrink-0 ml-2">{count} alat</span>
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Separator Divider */}
+          <div className="h-6 w-px bg-gray-200 shrink-0 hidden sm:block" />
+
+          {/* Horizontal Scrollable Carousel with Explicit Chevrons & Edge Fades */}
+          <div className="relative min-w-0 flex-grow flex items-center">
+            {/* Left Chevron Button with Fade Gradient */}
+            {canScrollLeft && (
+              <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-r from-brand-light via-brand-light/95 to-transparent pr-6 pointer-events-none">
                 <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  type="button"
+                  onClick={() => scrollCategories("left")}
+                  aria-label="Geser kategori ke kiri"
+                  className="pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-md text-gray-700 hover:text-brand-magenta hover:border-brand-magenta active:scale-95 flex items-center justify-center transition-all cursor-pointer"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* Scrollable Container */}
+            <div
+              ref={categoryScrollRef}
+              onScroll={checkScroll}
+              className="w-full overflow-x-auto scrollbar-none snap-x scroll-smooth py-1"
+            >
+              <div className="flex items-center gap-2 min-w-max px-0.5">
+                <button
+                  onClick={() => setSelectedCategory("semua")}
                   className={`snap-start px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                    selectedCategory === cat.id
+                    selectedCategory === "semua"
                       ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/25"
                       : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
                   }`}
                 >
-                  {cat.name} ({count})
+                  Semua ({products.filter((p) => p.status === "active").length})
                 </button>
-              );
-            })}
+                {categories.map((cat) => {
+                  const count = products.filter((p) => p.categoryId === cat.id && p.status === "active").length;
+                  if (count === 0) return null;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`snap-start px-3.5 sm:px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                        selectedCategory === cat.id
+                          ? "bg-brand-magenta text-white shadow-md shadow-brand-magenta/25"
+                          : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
+                      }`}
+                    >
+                      {cat.name} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Chevron Button with Fade Gradient */}
+            {canScrollRight && (
+              <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center bg-gradient-to-l from-brand-light via-brand-light/95 to-transparent pl-6 pointer-events-none">
+                <button
+                  type="button"
+                  onClick={() => scrollCategories("right")}
+                  aria-label="Geser kategori ke kanan"
+                  className="pointer-events-auto w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-gray-200 shadow-md text-gray-700 hover:text-brand-magenta hover:border-brand-magenta active:scale-95 flex items-center justify-center transition-all cursor-pointer"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
