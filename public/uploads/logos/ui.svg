@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <circle cx="28" cy="30" r="18" fill="#FFD400"/>
+  <path d="M22,22 C22,17 34,17 34,22 C34,29 28,31 28,37 C28,38 27,39 26,39 C25,39 24,38 24,37 C24,31 18,29 18,22" fill="#000" opacity="0.85"/>
+  <circle cx="28" cy="22" r="3" fill="#FFD400"/>
+  <text x="56" y="27" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="14" fill="#0f0f12" letter-spacing="0.5">UNIVERSITAS</text>
+  <text x="56" y="42" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="15" fill="#be3168" letter-spacing="1">INDONESIA</text>
+</svg>

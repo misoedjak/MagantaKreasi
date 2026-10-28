@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60">
+  <path d="M12,42 L26,16 L40,42 L31,42 L26,30 L21,42 Z" fill="#004A99"/>
+  <circle cx="26" cy="22" r="3" fill="#E31E24"/>
+  <text x="48" y="27" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="15" fill="#004A99" letter-spacing="1">ASTRA AGRO</text>
+  <text x="48" y="41" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="8" fill="#666" letter-spacing="1">PT ASTRA AGRO LESTARI TBK</text>
+</svg>

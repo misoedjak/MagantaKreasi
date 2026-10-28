@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 60" width="190" height="60">
+  <circle cx="26" cy="30" r="18" fill="#6C2EB9"/>
+  <circle cx="26" cy="30" r="9" fill="#FFD400"/>
+  <text x="52" y="32" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="21" fill="#6C2EB9" letter-spacing="0.5">beam</text>
+  <text x="52" y="44" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="7.5" fill="#666" letter-spacing="1">MOBILITY INDONESIA</text>
+</svg>

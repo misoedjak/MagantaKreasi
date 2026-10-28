@@ -140,9 +140,12 @@ export default async function Home({ searchParams }: HomeProps) {
     }));
 
   const clients = dbClients.map((c) => {
-    const match = clientPortfolios.find(
-      (p) => p.client?.toLowerCase() === c.name.toLowerCase()
-    );
+    const cLower = c.name.toLowerCase();
+    const match = clientPortfolios.find((p) => {
+      if (!p.client) return false;
+      const pLower = p.client.toLowerCase();
+      return pLower === cLower || pLower.includes(cLower) || cLower.includes(pLower);
+    });
     return {
       id: c.id,
       name: c.name,

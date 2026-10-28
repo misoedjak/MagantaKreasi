@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 60" width="190" height="60">
+  <circle cx="26" cy="30" r="18" fill="#D4AF37"/>
+  <path d="M26,16 L30,24 L38,25 L32,31 L34,39 L26,35 L18,39 L20,31 L14,25 L22,24 Z" fill="#fff"/>
+  <text x="52" y="28" font-family="'Segoe UI', Arial, sans-serif" font-weight="900" font-size="16" fill="#1a1a1a" letter-spacing="1">DPR RI</text>
+  <text x="52" y="42" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="7.5" fill="#666" letter-spacing="0.5">KOMISI XI DPR RI</text>
+</svg>
