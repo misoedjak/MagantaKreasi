@@ -28,8 +28,21 @@ export default async function ProductsPage() {
 
   const whatsappNumber = profile?.whatsapp || profile?.phone || "6282115151515";
 
+  const productsJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Beranda", item: "https://magantakreasi.com" },
+      { "@type": "ListItem", position: 2, name: "Katalog Sewa Alat Event", item: "https://magantakreasi.com/products" },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-white text-brand-dark font-sans selection:bg-brand-yellow selection:text-brand-dark">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productsJsonLd) }}
+      />
       <Navbar
         whatsappNumber={whatsappNumber}
         email={profile?.email}

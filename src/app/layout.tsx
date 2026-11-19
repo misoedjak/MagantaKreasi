@@ -102,45 +102,83 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = await prisma.category.findMany({
-    select: { id: true, name: true },
-    orderBy: { name: "asc" }
-  });
+  const [categories, profile] = await Promise.all([
+    prisma.category.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.companyProfile.findFirst(),
+  ]);
 
-  const localBusinessJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: "Maganta Kreasi",
-    url: "https://magantakreasi.com",
-    image: "https://magantakreasi.com/uploads/backgrounds/hero-flame-fest.jpg",
-    description:
-      "Workshop produksi event in-house untuk pembuatan booth pameran custom, panggung acara, backdrop, entrance gate, instalasi dekorasi 3D, dan sewa peralatan event di Bekasi, Jakarta, dan seluruh Indonesia.",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Jl. Kampung Pekopen No.61, Lambangjaya, Kec. Tambun Sel.",
-      addressLocality: "Kabupaten Bekasi",
-      addressRegion: "Jawa Barat",
-      postalCode: "17510",
-      addressCountry: "ID",
+  const phone = profile?.phone || profile?.whatsapp || "+62 811-8882-0067";
+  const email = profile?.email || "hello@magantakreasi.com";
+
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Maganta Kreasi",
+      alternateName: "Maganta Kreasi Event Production",
+      url: "https://magantakreasi.com",
     },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: -6.2846543,
-      longitude: 107.0533416,
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "Maganta Kreasi",
+      url: "https://magantakreasi.com",
+      logo: "https://magantakreasi.com/icon.png",
+      image: "https://magantakreasi.com/uploads/backgrounds/hero-flame-fest.jpg",
+      telephone: phone,
+      email,
+      description:
+        "Workshop produksi event in-house untuk pembuatan booth pameran custom, panggung acara, backdrop, entrance gate, instalasi dekorasi 3D, dan sewa peralatan event di Bekasi, Jakarta, dan seluruh Indonesia.",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Jl. Kampung Pekopen No.61, Lambangjaya, Kec. Tambun Sel.",
+        addressLocality: "Kabupaten Bekasi",
+        addressRegion: "Jawa Barat",
+        postalCode: "17510",
+        addressCountry: "ID",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: -6.2846543,
+        longitude: 107.0533416,
+      },
+      hasMap:
+        "https://www.google.com/maps/place/MAGANTA+KREASI/@-6.2846527,107.0533447,17z/data=!4m6!3m5!1s0x2e6991a01e4dfca5:0x491f21ecaa20f8d3!8m2!3d-6.2846543!4d107.0533416!16s%2Fg%2F11x0zhdxjz",
+      areaServed: ["Bekasi", "Jakarta", "Tangerang", "Depok", "Bogor", "Indonesia"],
+      sameAs: ["https://www.instagram.com/magantakreasi/"],
+      openingHoursSpecification: [
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          opens: "08:00",
+          closes: "18:00",
+        },
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Layanan Fabrikasi & Sewa Alat Event",
+        itemListElement: [
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Jasa Pembuatan Booth Pameran Custom" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Jasa Pembuatan Panggung Event Custom" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Vendor Backdrop & Branding Area Event" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Pembuatan Entrance Gate & Totem Signage" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Instalasi Dekoratif 3D & Dekorasi Festival" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Sewa Alat Event, Tenda, Videotron & Sound System" } },
+        ],
+      },
+      priceRange: "$$",
     },
-    hasMap:
-      "https://www.google.com/maps/place/MAGANTA+KREASI/@-6.2846527,107.0533447,17z/data=!4m6!3m5!1s0x2e6991a01e4dfca5:0x491f21ecaa20f8d3!8m2!3d-6.2846543!4d107.0533416!16s%2Fg%2F11x0zhdxjz",
-    areaServed: ["Bekasi", "Jakarta", "Tangerang", "Depok", "Bogor", "Indonesia"],
-    sameAs: ["https://www.instagram.com/magantakreasi/"],
-    priceRange: "$$",
-  };
+  ];
 
   return (
     <html lang="id" className={cn("scroll-smooth", "font-sans", geist.variable)} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${coveredByYourGrace.variable} ${plusJakartaSans.variable} antialiased bg-brand-light text-brand-dark`} suppressHydrationWarning>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         <Providers>
           {children}
@@ -149,10 +187,7 @@ export default async function RootLayout({
           </Suspense>
         </Providers>
         <Toaster position="top-right" richColors />
-      {/* impeccable-live-start */}
-<script src="http://localhost:8400/live.js"></script>
-{/* impeccable-live-end */}
-</body>
+      </body>
     </html>
   );
 }

@@ -16,17 +16,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 
   if (!portfolio) {
-    return { title: "Portfolio Not Found | Maganta Kreasi" };
+    return { title: "Portfolio Not Found" };
   }
 
   return {
-    title: portfolio.seoTitle || `${portfolio.title} | Maganta Kreasi`,
+    title: portfolio.seoTitle || portfolio.title,
     description: portfolio.seoDesc || portfolio.description.slice(0, 160),
+    alternates: { canonical: `/portfolio/${slug}` },
     openGraph: {
       title: portfolio.seoTitle || portfolio.title,
       description: portfolio.seoDesc || portfolio.description.slice(0, 160),
       images: [portfolio.thumbnail],
-    }
+    },
   };
 }
 
