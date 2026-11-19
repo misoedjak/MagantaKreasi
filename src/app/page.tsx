@@ -93,8 +93,9 @@ export default async function Home({ searchParams }: HomeProps) {
     prisma.aboutSettings.findFirst(),
     prisma.statCard.findMany({ orderBy: { order: "asc" } }),
     prisma.product.findMany({
-      where: { featured: true, status: "active" },
-      take: 8,
+      where: { status: "active" },
+      orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+      take: 24,
       include: { category: true },
     }),
   ]);
@@ -178,7 +179,8 @@ export default async function Home({ searchParams }: HomeProps) {
       <Clients clients={clients} />
       <Services categories={categories} />
       <Portfolio initialPortfolios={portfolios} categories={categories} layoutMode="carousel" />
-      <WhyChooseUs advantages={advantages} />
+      {/* Archived for now — component preserved in src/components/WhyChooseUs.tsx */}
+      {/* <WhyChooseUs advantages={advantages} /> */}
       <Process steps={pipelineSteps} />
       <Suspense fallback={null}>
         <Contact profile={profile} categories={categories} selectedEventId={selectedEventId} />

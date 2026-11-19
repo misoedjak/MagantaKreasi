@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, MotionConfig } from "framer-motion";
-import { ArrowUpRight, FolderOpen, Play } from "lucide-react";
+import { ArrowRight, ArrowUpRight, FolderOpen, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -42,13 +42,15 @@ function PortfolioCard({
   project,
   idx,
   isVideoFile,
+  featuredWide = false,
 }: {
   project: PortfolioItem;
   idx: number;
   isVideoFile: (url?: string | null) => boolean;
+  featuredWide?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const videoSource =
     project.videoUrl || (isVideoFile(project.thumbnail) ? project.thumbnail : null);
@@ -68,133 +70,119 @@ function PortfolioCard({
       : project.category
         ? project.category.name
         : null;
+  const indexLabel = String(idx + 1).padStart(2, "0");
 
   const startPlayback = () => {
     if (!videoSource) return;
-    setHasStarted(true);
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      videoRef.current
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
     }
   };
 
   const pausePlayback = () => {
     if (videoRef.current) {
       videoRef.current.pause();
-    }
-  };
-
-  const handleMediaClick = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      startPlayback();
-    } else {
-      pausePlayback();
+      setIsPlaying(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+    <motion.article
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: idx * 0.05 }}
-      className="group relative w-full h-full aspect-[4/3] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-200/20 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+      transition={{ duration: 0.4, delay: Math.min(idx * 0.05, 0.25) }}
+      className="group flex flex-col w-full"
       onMouseEnter={startPlayback}
       onMouseLeave={pausePlayback}
       onFocus={startPlayback}
       onBlur={pausePlayback}
     >
-      {/* Background Media Container */}
-      <div
-        className="w-full h-full relative overflow-hidden bg-zinc-900 cursor-pointer"
-        onClick={handleMediaClick}
+      <Link
+        href={`/portfolio/${project.slug}`}
+        aria-label={`Lihat detail proyek ${displayTitle}`}
+        className="flex flex-col flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 active:opacity-90"
       >
-        <Image
-          src={thumbImage}
-          alt={displayTitle}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className={`object-cover transition-all duration-500 group-hover:scale-[1.03] ${
-            hasStarted && videoSource ? "opacity-0 pointer-events-none" : "opacity-100"
+        {/* Sharp Unobstructed Editorial Media Frame */}
+        <div
+          className={`relative w-full overflow-hidden bg-zinc-950 ${
+            featuredWide ? "aspect-[16/10]" : "aspect-[4/3]"
           }`}
-        />
-
-        {videoSource && (
-          <video
-            ref={videoRef}
-            src={videoSource}
-            loop
-            muted
-            playsInline
-            preload="none"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-              hasStarted ? "opacity-100" : "opacity-0"
+        >
+          <Image
+            src={thumbImage}
+            alt={displayTitle}
+            fill
+            sizes={
+              featuredWide
+                ? "(max-width: 1024px) 100vw, 50vw"
+                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            }
+            className={`object-cover transition-opacity duration-300 ${
+              isPlaying && videoSource ? "opacity-0" : "opacity-100"
             }`}
           />
-        )}
-      </div>
 
-      {/* Minimalist Category Top Badge */}
-      {primaryCategory && (
-        <div className="absolute top-3 left-3 z-20 pointer-events-none">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-black/75 backdrop-blur-md text-brand-yellow border border-white/20 shadow-md tracking-wide">
-            {primaryCategory}
-          </span>
+          {videoSource && (
+            <video
+              ref={videoRef}
+              src={videoSource}
+              loop
+              muted
+              playsInline
+              preload="none"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                isPlaying ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          )}
+
+          {/* Minimal Corner Reel Cue — fades out cleanly once video plays */}
+          {videoSource && (
+            <div
+              className={`absolute bottom-3 right-3 z-10 w-8 h-8 bg-white/95 text-zinc-950 flex items-center justify-center transition-opacity duration-200 pointer-events-none ${
+                isPlaying ? "opacity-0" : "opacity-100"
+              }`}
+              aria-hidden="true"
+            >
+              <Play size={12} className="fill-current ml-0.5" />
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Discreet Video Badge on Top-Right */}
-      {videoSource && (
-        <div className="absolute top-3 right-3 z-20 pointer-events-none">
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-black/60 backdrop-blur-md text-white border border-white/15 flex items-center gap-1 shadow-sm">
-            <Play size={9} className="fill-brand-yellow text-brand-yellow" aria-hidden="true" /> Video
-          </span>
-        </div>
-      )}
+        {/* Clean Editorial Metadata Underneath Frame */}
+        <div className="pt-3.5 mt-3.5 border-t border-zinc-200 group-hover:border-brand-magenta transition-colors duration-200 flex-1 flex flex-col">
+          <div className="flex items-center justify-between gap-2 text-xs text-zinc-500">
+            <span className="font-mono tabular-nums truncate">
+              {indexLabel}
+              {primaryCategory ? ` / ${primaryCategory}` : ""}
+            </span>
+            <ArrowUpRight
+              size={15}
+              aria-hidden="true"
+              className="shrink-0 text-zinc-400 group-hover:text-brand-magenta motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+            />
+          </div>
 
-      {/* Bottom Feather Gradient Scrim: Compact at rest, expands smoothly on hover */}
-      <div className="absolute inset-x-0 bottom-0 h-28 group-hover:h-44 bg-gradient-to-t from-black/95 via-black/55 to-transparent pointer-events-none z-10 transition-all duration-300" />
-
-      {/* Kinetic Slide-Up Drawer Container - Video plays continuously even when hovering here! */}
-      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-20 pointer-events-auto">
-        <h3 className="font-heading text-sm sm:text-base md:text-lg font-bold text-white group-hover:text-brand-yellow transition-colors line-clamp-2 leading-snug drop-shadow-sm">
-          <Link
-            href={`/portfolio/${project.slug}`}
-            className="hover:underline focus-visible:outline-2 focus-visible:outline-brand-yellow rounded"
+          <h3
+            className={`font-sans font-bold text-zinc-950 group-hover:text-brand-magenta transition-colors duration-200 tracking-tight leading-snug mt-1.5 line-clamp-2 ${
+              featuredWide ? "text-base sm:text-xl" : "text-sm sm:text-base"
+            }`}
           >
             {displayTitle}
-          </Link>
-        </h3>
+          </h3>
 
-        {/* Revealed Content via CSS Grid Row Transition (Takes 0 height at rest!) */}
-        <div className="grid grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 transition-all duration-300 ease-out">
-          <div className="overflow-hidden">
-            {project.client && (
-              <p className="text-xs text-zinc-300 line-clamp-1 mt-1.5">
-                Klien: {project.client}
-              </p>
-            )}
-
-            {/* Action Row */}
-            <div className="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between">
-              <Link
-                href={`/portfolio/${project.slug}`}
-                className="text-xs font-bold text-brand-yellow hover:underline focus-visible:outline-2 focus-visible:outline-brand-yellow rounded"
-              >
-                Lihat Detail Proyek
-              </Link>
-              <Link
-                href={`/portfolio/${project.slug}`}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-yellow text-brand-dark flex items-center justify-center font-bold text-xs shadow-md transition-transform group-hover:scale-105 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-brand-yellow"
-                aria-label={`Buka detail proyek ${displayTitle}`}
-              >
-                <ArrowUpRight size={14} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
+          {project.client && (
+            <p className="text-xs text-zinc-500 mt-1 line-clamp-1">
+              {project.client}
+            </p>
+          )}
         </div>
-      </div>
-    </motion.div>
+      </Link>
+    </motion.article>
   );
 }
 
@@ -265,46 +253,47 @@ export default function Portfolio({
       : filteredProjects;
 
   const sectionPadding =
-    layoutMode === "carousel" ? "py-12 md:py-16" : "pt-4 pb-12 md:pt-6 md:pb-16";
+    layoutMode === "carousel" ? "py-20 md:py-28" : "pt-6 pb-16 md:pt-10 md:pb-24";
 
   return (
     <MotionConfig reducedMotion="user">
       <section
         id="portfolio"
-        className={`bg-brand-light border-t border-brand-magenta/10 overflow-hidden ${sectionPadding}`}
+        className={`bg-white border-t border-zinc-200/80 overflow-hidden ${sectionPadding}`}
         suppressHydrationWarning
       >
         <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="flex flex-col mb-6 md:mb-8 gap-4">
+          {/* Centered Editorial Header */}
+          <div className="flex flex-col items-center mb-12 md:mb-16 gap-6">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              className="text-center max-w-2xl mx-auto"
             >
-              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-zinc-900">
-                <span className="text-brand-magenta">Portofolio</span> Kami
+              <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12]">
+                Portofolio{" "}
+                <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                  kami.
+                </span>
               </h2>
-              <p className="text-zinc-700 font-medium text-xs sm:text-sm max-w-xl leading-relaxed">
-                Jelajahi dokumentasi proyek panggung, booth custom, backdrop, dan instalasi event
-                resmi kami.
-              </p>
             </motion.div>
 
-            {/* Categories Filters - Only show in grid mode */}
+            {/* Category Filters - Only show in grid mode (/portfolio page) */}
             {layoutMode === "grid" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:flex-wrap scrollbar-none snap-x snap-mandatory shrink-0"
+                className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:flex-wrap md:justify-center scrollbar-none shrink-0 max-w-full"
               >
                 <button
                   type="button"
                   onClick={() => setActiveFilter("Semua")}
-                  className={`min-h-[40px] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 snap-start cursor-pointer ${
+                  className={`min-h-[40px] px-4 py-2 text-xs sm:text-sm font-semibold transition-colors shrink-0 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 ${
                     activeFilter === "Semua"
-                      ? "bg-brand-magenta text-white shadow-md"
-                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                      ? "bg-zinc-950 text-white border-zinc-950"
+                      : "bg-white text-zinc-700 border-zinc-200 hover:border-zinc-900 hover:text-zinc-950"
                   }`}
                 >
                   Semua
@@ -314,10 +303,10 @@ export default function Portfolio({
                     type="button"
                     key={cat.id}
                     onClick={() => setActiveFilter(cat.id)}
-                    className={`min-h-[40px] px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shrink-0 snap-start cursor-pointer ${
+                    className={`min-h-[40px] px-4 py-2 text-xs sm:text-sm font-semibold transition-colors shrink-0 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 ${
                       activeFilter === cat.id
-                        ? "bg-brand-magenta text-white shadow-md"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        ? "bg-zinc-950 text-white border-zinc-950"
+                        : "bg-white text-zinc-700 border-zinc-200 hover:border-zinc-900 hover:text-zinc-950"
                     }`}
                   >
                     {cat.name}
@@ -329,27 +318,36 @@ export default function Portfolio({
 
           {/* Portfolios Display */}
           {projectsToRender.length === 0 ? (
-            <div className="py-12 text-center text-zinc-600 flex flex-col items-center gap-2 border border-dashed border-zinc-300 rounded-2xl">
+            <div className="py-12 text-center text-zinc-600 flex flex-col items-center gap-2 border border-dashed border-zinc-300">
               <FolderOpen className="h-8 w-8 text-zinc-500" aria-hidden="true" />
               <p className="text-sm">
                 Belum ada proyek portofolio yang dipublikasikan dalam kategori ini.
               </p>
             </div>
           ) : layoutMode === "carousel" ? (
-            <div className="flex lg:grid lg:grid-cols-3 items-stretch gap-4 md:gap-6 overflow-x-auto lg:overflow-visible pb-6 lg:pb-0 snap-x snap-mandatory scroll-smooth -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 scroll-pl-6 md:scroll-pl-10 scrollbar-none">
-              {projectsToRender.map((project, idx) => (
-                <div
-                  key={project.id}
-                  className="min-w-[80vw] sm:min-w-[46vw] lg:min-w-0 snap-start snap-always shrink-0 lg:shrink flex w-full"
-                >
-                  <PortfolioCard project={project} idx={idx} isVideoFile={isVideoFile} />
-                </div>
-              ))}
+            /* Editorial 2-Wide Hero Reels + 4-Column Showcase Row */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-10 md:gap-x-7 md:gap-y-12">
+              {projectsToRender.map((project, idx) => {
+                const isFeaturedWide = idx < 2;
+                return (
+                  <div
+                    key={project.id}
+                    className={isFeaturedWide ? "sm:col-span-1 lg:col-span-6" : "sm:col-span-1 lg:col-span-3"}
+                  >
+                    <PortfolioCard
+                      project={project}
+                      idx={idx}
+                      isVideoFile={isVideoFile}
+                      featuredWide={isFeaturedWide}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-x-7 md:gap-y-12"
             >
               <AnimatePresence>
                 {projectsToRender.map((project, idx) => (
@@ -362,12 +360,13 @@ export default function Portfolio({
           )}
 
           {layoutMode === "carousel" && projectsToRender.length > 0 && (
-            <div className="text-center mt-8">
+            <div className="text-center mt-14">
               <Link
                 href="/portfolio"
-                className="min-h-[44px] px-7 py-3 rounded-full bg-brand-yellow hover:bg-brand-magenta hover:text-white text-brand-dark font-semibold text-xs sm:text-sm transition-all inline-flex items-center justify-center shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-magenta"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 hover:text-brand-magenta transition-colors underline underline-offset-4 decoration-zinc-300 hover:decoration-brand-magenta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 active:opacity-80 rounded-xs"
               >
-                Lihat Semua Portofolio
+                <span>Lihat semua portofolio</span>
+                <ArrowRight size={15} aria-hidden="true" />
               </Link>
             </div>
           )}

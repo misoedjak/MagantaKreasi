@@ -65,12 +65,12 @@ export default function Navbar({
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         aria-label="Navigasi Utama"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,padding,box-shadow] duration-200 ${
           mobileMenuOpen
             ? "bg-transparent py-2"
             : scrolled
-              ? "bg-brand-magenta/95 backdrop-blur-md py-2 lg:py-2.5 border-b border-white/10 shadow-lg shadow-black/10"
-              : "bg-brand-magenta/95 backdrop-blur-md py-2.5 lg:py-3 border-b border-white/10 shadow-lg shadow-black/10"
+              ? "bg-brand-magenta py-2 lg:py-2.5 border-b border-white/10 shadow-md"
+              : "bg-brand-magenta py-2.5 lg:py-3 border-b border-white/10 shadow-md"
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 md:px-10 flex justify-between items-center">

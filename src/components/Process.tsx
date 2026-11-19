@@ -2,6 +2,7 @@
 
 import { motion, MotionConfig } from "framer-motion";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 
 interface PipelineStepItem {
   id: string;
@@ -73,81 +74,108 @@ export default function Process({ steps = [] }: ProcessProps) {
     <MotionConfig reducedMotion="user">
       <section
         id="process"
-        className="py-12 md:py-16 bg-brand-light relative overflow-hidden border-t border-brand-magenta/10"
+        className="py-14 md:py-20 bg-white relative overflow-hidden border-t border-zinc-200/80"
         suppressHydrationWarning
       >
         <div className="max-w-6xl mx-auto px-6 md:px-10 relative z-10">
+          {/* Compact Editorial Header */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-8 md:mb-12"
+            className="text-center mb-8 md:mb-10"
           >
-            <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-zinc-900">
-              <span className="text-brand-magenta">Proses</span> Pengerjaan
+            <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12]">
+              Proses{" "}
+              <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                pengerjaan.
+              </span>
             </h2>
-            <p className="text-zinc-700 font-medium text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-              Pendekatan sistematis mulai dari konsep hingga arsitektur event yang memukau.
+            <p className="mt-2.5 text-zinc-600 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
+              Alur kerja sistematis dari konsep hingga pembongkaran pasca-event.
             </p>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto">
+          {/* Compact 4x2 Grid — fits the entire process cleanly within one viewport */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4">
             {listToRender.map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.05, duration: 0.35 }}
-                className="flex gap-4 md:gap-6 mb-4 relative"
+                transition={{ delay: i * 0.04, duration: 0.3 }}
+                className="group relative overflow-hidden min-h-[146px] flex flex-col justify-between border border-zinc-200 hover:border-brand-magenta transition-colors duration-200 bg-white"
               >
-                {/* Vertical connector line */}
-                {i !== listToRender.length - 1 && (
-                  <div
-                    className="absolute left-4.5 top-10 bottom-[-18px] w-[2px] bg-gradient-to-b from-brand-magenta/50 to-transparent md:left-6 md:top-12 z-10"
-                    aria-hidden="true"
-                  />
-                )}
-
-                {/* Step Number Circle */}
-                <div className="w-9 h-9 md:w-12 md:h-12 shrink-0 rounded-full bg-brand-magenta border-2 border-brand-magenta/30 flex items-center justify-center font-heading text-xs md:text-base font-bold text-white z-10 shadow-md">
-                  {step.num}
-                </div>
-
-                {/* Step Card */}
-                <div className="flex-1 mb-1 rounded-2xl overflow-hidden shadow-sm group">
-                  {step.bgImageUrl ? (
-                    <div className="relative w-full min-h-[7rem] md:min-h-[8rem]">
-                      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/25 z-10" />
-                      <Image
-                        src={step.bgImageUrl}
-                        alt={step.title}
-                        fill
-                        sizes="(max-width: 768px) 85vw, 768px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="relative z-20 p-4 md:p-5 flex flex-col justify-center h-full">
-                        <h3 className="font-heading text-sm md:text-lg font-bold text-white mb-1">
+                {step.bgImageUrl ? (
+                  <>
+                    <Image
+                      src={step.bgImageUrl}
+                      alt={step.title}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover"
+                    />
+                    <div
+                      className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/40 z-10"
+                      aria-hidden="true"
+                    />
+                    <div className="relative z-20 p-4 sm:p-5 flex flex-col justify-between h-full">
+                      <span className="font-mono text-xs font-bold text-brand-yellow tabular-nums">
+                        {step.num}
+                      </span>
+                      <div className="mt-4">
+                        <h3 className="font-sans text-sm sm:text-[15px] font-bold text-white leading-snug">
                           {step.title}
                         </h3>
-                        <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
+                        <p className="mt-1 text-white/85 text-xs leading-relaxed line-clamp-3">
                           {step.desc}
                         </p>
                       </div>
                     </div>
-                  ) : (
-                    <div className="glass-card p-4 md:p-5 h-full">
-                      <h3 className="font-heading text-sm md:text-lg font-bold mb-1 text-brand-dark">
+                  </>
+                ) : (
+                  <div className="p-4 sm:p-5 flex flex-col justify-between h-full">
+                    <span className="font-mono text-xs font-bold text-brand-magenta tabular-nums">
+                      {step.num}
+                    </span>
+                    <div className="mt-4">
+                      <h3 className="font-sans text-sm sm:text-[15px] font-bold text-zinc-950 leading-snug">
                         {step.title}
                       </h3>
-                      <p className="text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                      <p className="mt-1 text-zinc-600 text-xs leading-relaxed line-clamp-3">
                         {step.desc}
                       </p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </motion.div>
             ))}
+
+            {/* 8th Interactive CTA Tile to complete the crisp 4x2 grid */}
+            <a
+              href="#contact"
+              className="group min-h-[146px] p-4 sm:p-5 bg-brand-magenta hover:bg-brand-magenta-hover transition-colors duration-200 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 active:opacity-95"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-brand-yellow tabular-nums">
+                  {String(listToRender.length + 1).padStart(2, "0")}
+                </span>
+                <ArrowUpRight
+                  size={16}
+                  aria-hidden="true"
+                  className="text-brand-yellow motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+                />
+              </div>
+              <div className="mt-4">
+                <span className="font-sans text-sm sm:text-[15px] font-bold text-white leading-snug block">
+                  Mulai Proyek Anda
+                </span>
+                <span className="mt-1 text-white/85 text-xs leading-relaxed block">
+                  Diskusikan kebutuhan produksi langsung dengan tim workshop kami.
+                </span>
+              </div>
+            </a>
           </div>
         </div>
       </section>

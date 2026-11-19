@@ -134,24 +134,11 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
   return (
     <MotionConfig reducedMotion="user">
       <section
-        className="relative min-h-screen h-dvh w-full flex items-center justify-center overflow-hidden pt-20 pb-20 bg-brand-dark"
+        className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-16 pb-16"
         suppressHydrationWarning
       >
-        {/* GPU-Accelerated SVG Unsharp Mask Filter to Sharpen 720p Reel Video at Fullscreen */}
-        <svg className="sr-only" aria-hidden="true">
-          <defs>
-            <filter id="hero-hd-sharpen" colorInterpolationFilters="sRGB">
-              <feConvolveMatrix
-                order="3 3"
-                preserveAlpha="true"
-                kernelMatrix="0 -0.35 0 -0.35 2.4 -0.35 0 -0.35 0"
-              />
-            </filter>
-          </defs>
-        </svg>
-
-        {/* Full-Screen Background Video #1 (object-cover object-top: anchored at top, crops only bottom) */}
-        <div className="absolute inset-0 z-0 bg-brand-dark overflow-hidden">
+        {/* Full-Screen Background Video #1 (object-cover object-center scale-110 to completely eliminate embedded letterbox bars) */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-black">
           <Image
             src={heroPosterImg}
             alt={videoOne?.title || "Maganta Kreasi"}
@@ -159,7 +146,7 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
             priority
             quality={100}
             sizes="100vw"
-            className="object-cover object-top"
+            className="object-cover object-center scale-[1.12]"
           />
 
           {heroVideoSrc && (
@@ -176,16 +163,16 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               style={{
-                filter: "url(#hero-hd-sharpen) contrast(1.08) saturate(1.06)",
+                filter: "contrast(1.06) saturate(1.06)",
                 transform: "translateZ(0)",
                 backfaceVisibility: "hidden",
               }}
-              className="absolute inset-0 z-10 w-full h-full object-cover object-top"
+              className="absolute inset-0 z-10 w-full h-full object-cover object-center scale-[1.12]"
             />
           )}
 
           {/* Subtle Editorial Scrim so Video Stays Crisp & Vivid */}
-          <div className="absolute inset-0 bg-black/20 z-20 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/25 z-20 pointer-events-none" />
         </div>
 
         {/* Centered Single-Column Hero Composition */}

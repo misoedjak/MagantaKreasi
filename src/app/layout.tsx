@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Geist } from "next/font/google";
+import { Inter, Space_Grotesk, Geist, Covered_By_Your_Grace } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
+const coveredByYourGrace = Covered_By_Your_Grace({
+  weight: "400",
+  variable: "--font-covered-by-your-grace",
+  subsets: ["latin"],
+});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,7 +44,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn("scroll-smooth", "font-sans", geist.variable)} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased bg-brand-light text-brand-dark`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${coveredByYourGrace.variable} antialiased bg-brand-light text-brand-dark`} suppressHydrationWarning>
         <Providers>
           {children}
           <Suspense fallback={null}>

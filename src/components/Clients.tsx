@@ -21,7 +21,7 @@ export default function Clients({ clients = [] }: ClientsProps) {
     <MotionConfig reducedMotion="user">
       <section
         id="clients"
-        className="py-10 md:py-12 bg-brand-light relative border-t border-brand-magenta/10"
+        className="py-16 md:py-24 bg-white relative border-t border-zinc-200/80"
         suppressHydrationWarning
       >
         <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
@@ -29,12 +29,16 @@ export default function Clients({ clients = [] }: ClientsProps) {
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-6 md:mb-8 text-center flex flex-col items-center"
+            className="mb-10 md:mb-14 text-center"
           >
-            <h2 className="font-heading text-xl sm:text-2xl font-bold text-brand-magenta mb-2">
-              Dipercaya oleh Klien Terkemuka
+            <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12] max-w-2xl mx-auto">
+              Dipercaya oleh
+              <br />
+              klien{" "}
+              <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                terkemuka.
+              </span>
             </h2>
-            <div className="w-10 h-1 bg-brand-yellow rounded-full" />
           </motion.div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6">
