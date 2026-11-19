@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { animate, motion, useInView, useReducedMotion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
 
 function AnimatedStatNumber({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -60,57 +61,90 @@ interface AboutProps {
 }
 
 export default function About({ settings, stats }: AboutProps) {
-  const defaultTrustStats = [
-    {
-      number: "500+",
-      caption: "Proyek booth, panggung & backdrop terpasang di venue nasional",
-    },
-    {
-      number: "100%",
-      caption: "Produksi in-house langsung di workshop sendiri tanpa subkontraktor",
-    },
-    {
-      number: "1.000m²",
-      caption: "Fasilitas workshop fabrikasi kayu, las metal & ruang finishing",
-    },
-    {
-      number: "24/7",
-      caption: "Tim teknis & kru lapangan siaga dari loading hingga bongkaran",
-    },
-    {
-      number: "SNI",
-      caption: "Material rangka besi holo & multiplek 18mm berstandar kekuatan tinggi",
-    },
-    {
-      number: "CNC",
-      caption: "Pemotongan presisi, cat duco rapi & uji pra-rakit sebelum loading",
-    },
-  ];
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
+
+  const defaultTrustStats = isEn
+    ? [
+        {
+          number: "500+",
+          caption: "Custom booths, stages & backdrops installed at national venues",
+        },
+        {
+          number: "100%",
+          caption: "In-house fabrication directly at our workshop with zero subcontractors",
+        },
+        {
+          number: "1.000m²",
+          caption: "Dedicated woodworking, metal welding & finishing workshop facility",
+        },
+        {
+          number: "24/7",
+          caption: "On-site technical crew ready from venue loading to strike-down",
+        },
+        {
+          number: "SNI",
+          caption: "Certified hollow steel framing & 18mm plywood built for structural safety",
+        },
+        {
+          number: "CNC",
+          caption: "Precision cutting, smooth duco painting & workshop pre-assembly checks",
+        },
+      ]
+    : [
+        {
+          number: "500+",
+          caption: "Proyek booth, panggung & backdrop terpasang di venue nasional",
+        },
+        {
+          number: "100%",
+          caption: "Produksi in-house langsung di workshop sendiri tanpa subkontraktor",
+        },
+        {
+          number: "1.000m²",
+          caption: "Fasilitas workshop fabrikasi kayu, las metal & ruang finishing",
+        },
+        {
+          number: "24/7",
+          caption: "Tim teknis & kru lapangan siaga dari loading hingga bongkaran",
+        },
+        {
+          number: "SNI",
+          caption: "Material rangka besi holo & multiplek 18mm berstandar kekuatan tinggi",
+        },
+        {
+          number: "CNC",
+          caption: "Pemotongan presisi, cat duco rapi & uji pra-rakit sebelum loading",
+        },
+      ];
 
   // Keep authentic quantitative stats if DB only has generic text placeholders
   const hasGenericTextStats = stats?.some(
     (s) => s.number === "Top" || s.number === "In-House"
   );
   const trustStats =
-    stats && stats.length >= 6 && !hasGenericTextStats
+    !isEn && stats && stats.length >= 6 && !hasGenericTextStats
       ? stats.slice(0, 6).map((s) => ({
           number: s.number,
           caption: s.label,
         }))
       : defaultTrustStats;
 
-  const headingText =
-    settings?.heading && !settings.heading.includes("Dedikasi")
+  const headingText = isEn
+    ? "Built Directly From Our Own Workshop."
+    : settings?.heading && !settings.heading.includes("Dedikasi")
       ? settings.heading
       : "Dikerjakan Langsung dari Workshop Sendiri.";
 
-  const para1Text =
-    settings?.paragraph1 && !settings.paragraph1.includes("spesialis fabrikasi")
+  const para1Text = isEn
+    ? "Maganta Kreasi is an in-house event and exhibition production workshop. We fabricate custom exhibition booths, corporate stages, backdrops, totems, and 3D signage with solid construction and refined finishing."
+    : settings?.paragraph1 && !settings.paragraph1.includes("spesialis fabrikasi")
       ? settings.paragraph1
       : "Maganta Kreasi adalah workshop produksi event dan pameran. Kami mengerjakan pembuatan booth pameran, panggung acara, backdrop, hingga totem dan signage dengan konstruksi yang kuat dan finishing rapi.";
 
-  const para2Text =
-    settings?.paragraph2 && !settings.paragraph2.includes("Beroperasi dari workshop")
+  const para2Text = isEn
+    ? "Every stage from steel framing, carpentry, and painting to on-site installation and strike-down is handled directly by our in-house crew—never outsourced—so quality and timelines stay guaranteed."
+    : settings?.paragraph2 && !settings.paragraph2.includes("Beroperasi dari workshop")
       ? settings.paragraph2
       : "Seluruh proses mulai dari potong rangka, perkayuan, pengecatan, hingga bongkar-pasang di lokasi dikerjakan langsung oleh tim in-house kami sendiri tanpa dilempar ke pihak ketiga, sehingga kualitas dan ketepatan waktu selalu terjaga.";
 
@@ -221,7 +255,7 @@ export default function About({ settings, stats }: AboutProps) {
               <div className="lg:col-span-6 p-6 sm:p-10 lg:pr-14 lg:pl-4 flex flex-col justify-center">
                 <div className="mb-3">
                   <span className="text-xs font-bold uppercase tracking-widest text-brand-magenta">
-                    Tentang Workshop Kami
+                    {isEn ? "About Our Workshop" : "Tentang Workshop Kami"}
                   </span>
                 </div>
 
@@ -247,9 +281,19 @@ export default function About({ settings, stats }: AboutProps) {
       <div className="w-full bg-brand-magenta text-white py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-6 md:px-10 text-center">
           <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.15] max-w-2xl mx-auto">
-            Dipercaya brand besar
-            <br className="hidden sm:inline" /> dan kecil di{" "}
-            <span className="text-brand-yellow">Indonesia.</span>
+            {isEn ? (
+              <>
+                Trusted by brands big
+                <br className="hidden sm:inline" /> and small across{" "}
+                <span className="text-brand-yellow">Indonesia.</span>
+              </>
+            ) : (
+              <>
+                Dipercaya brand besar
+                <br className="hidden sm:inline" /> dan kecil di{" "}
+                <span className="text-brand-yellow">Indonesia.</span>
+              </>
+            )}
           </h2>
 
           <div className="mt-6">
@@ -257,7 +301,7 @@ export default function About({ settings, stats }: AboutProps) {
               href="#contact"
               className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-brand-yellow text-brand-dark text-sm font-bold hover:bg-white transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-yellow focus-visible:ring-offset-4 focus-visible:ring-offset-brand-magenta active:opacity-90"
             >
-              Hubungi Tim Kami
+              {isEn ? "Contact Our Team" : "Hubungi Tim Kami"}
             </a>
           </div>
 

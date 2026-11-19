@@ -5,6 +5,7 @@ import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { ArrowRight, ArrowUpRight, FolderOpen, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface PortfolioImage {
   id: string;
@@ -155,25 +156,20 @@ function PortfolioCard({
 
         {/* Clean Editorial Metadata Underneath Frame */}
         <div className="pt-3.5 mt-3.5 border-t border-zinc-200 group-hover:border-brand-magenta transition-colors duration-200 flex-1 flex flex-col">
-          <div className="flex items-center justify-between gap-2 text-xs text-zinc-500">
-            <span className="font-mono tabular-nums truncate">
-              {indexLabel}
-              {primaryCategory ? ` / ${primaryCategory}` : ""}
-            </span>
+          <div className="flex items-start justify-between gap-2">
+            <h3
+              className={`font-sans font-bold text-zinc-950 group-hover:text-brand-magenta transition-colors duration-200 tracking-tight leading-snug line-clamp-2 ${
+                featuredWide ? "text-base sm:text-xl" : "text-sm sm:text-base"
+              }`}
+            >
+              {displayTitle}
+            </h3>
             <ArrowUpRight
               size={15}
               aria-hidden="true"
-              className="shrink-0 text-zinc-400 group-hover:text-brand-magenta motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+              className="shrink-0 mt-1 text-zinc-400 group-hover:text-brand-magenta motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
             />
           </div>
-
-          <h3
-            className={`font-sans font-bold text-zinc-950 group-hover:text-brand-magenta transition-colors duration-200 tracking-tight leading-snug mt-1.5 line-clamp-2 ${
-              featuredWide ? "text-base sm:text-xl" : "text-sm sm:text-base"
-            }`}
-          >
-            {displayTitle}
-          </h3>
 
           {project.client && (
             <p className="text-xs text-zinc-500 mt-1 line-clamp-1">
@@ -192,6 +188,8 @@ export default function Portfolio({
   layoutMode = "grid",
 }: PortfolioProps) {
   const [activeFilter, setActiveFilter] = useState("Semua");
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -272,10 +270,21 @@ export default function Portfolio({
               className="text-center max-w-2xl mx-auto"
             >
               <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12]">
-                Portofolio{" "}
-                <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
-                  kami.
-                </span>
+                {isEn ? (
+                  <>
+                    Our{" "}
+                    <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                      portfolio.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Portofolio{" "}
+                    <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                      kami.
+                    </span>
+                  </>
+                )}
               </h2>
             </motion.div>
 
@@ -296,7 +305,7 @@ export default function Portfolio({
                       : "bg-white text-zinc-700 border-zinc-200 hover:border-zinc-900 hover:text-zinc-950"
                   }`}
                 >
-                  Semua
+                  {isEn ? "All" : "Semua"}
                 </button>
                 {categories.map((cat) => (
                   <button
@@ -365,7 +374,7 @@ export default function Portfolio({
                 href="/portfolio"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 hover:text-brand-magenta transition-colors underline underline-offset-4 decoration-zinc-300 hover:decoration-brand-magenta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 active:opacity-80 rounded-xs"
               >
-                <span>Lihat semua portofolio</span>
+                <span>{isEn ? "View all portfolio" : "Lihat semua portofolio"}</span>
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
             </div>

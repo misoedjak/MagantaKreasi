@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ServicesList from "@/components/ServicesList";
-import { Factory } from "lucide-react";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { Metadata } from "next";
 
 export const revalidate = 0;
@@ -10,70 +10,119 @@ export const revalidate = 0;
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Layanan & Kapasitas Fabrikasi | Maganta Kreasi",
-    description: "Fabrikasi booth pameran, setup panggung, backdrop, gate, wayfinding, dan instalasi dekoratif artistik berstandar presisi tinggi oleh Maganta Kreasi.",
+    description:
+      "Fabrikasi booth pameran, setup panggung, backdrop, gate, wayfinding, dan instalasi dekoratif artistik berstandar presisi tinggi oleh Maganta Kreasi.",
   };
 }
 
 export default async function ServicesPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
+  const [categories, profile] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.companyProfile.findFirst(),
+  ]);
 
-  const profile = await prisma.companyProfile.findFirst();
+  const contactWhatsapp = profile?.whatsapp || profile?.phone || "6281188820067";
+  let cleanWa = contactWhatsapp.replace(/[^0-9]/g, "");
+  if (cleanWa.startsWith("0")) {
+    cleanWa = "62" + cleanWa.substring(1);
+  }
+  const waConsultUrl = `https://wa.me/${cleanWa}?text=${encodeURIComponent(
+    "Halo Maganta Kreasi, saya ingin konsultasi kebutuhan fabrikasi event."
+  )}`;
 
   return (
-    <div className="min-h-screen bg-brand-light text-brand-dark font-sans selection:bg-[#FFD400] selection:text-black">
-      <Navbar />
+    <div className="min-h-screen bg-white text-brand-dark font-sans selection:bg-brand-yellow selection:text-brand-dark">
+      <Navbar
+        whatsappNumber={contactWhatsapp}
+        email={profile?.email}
+        phoneDisplay={profile?.phone || profile?.whatsapp}
+      />
 
-      {/* Hero Header - Compact & Proportional */}
-      <section className="pt-24 pb-8 sm:pb-10 bg-gradient-to-b from-white via-zinc-50/50 to-brand-light relative overflow-hidden border-b border-zinc-200/60">
-        {/* Subtle Architectural Grid Pattern */}
-        <div 
-          className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] [background-size:18px_18px] opacity-70 pointer-events-none" 
-          aria-hidden="true"
-        />
-        <div 
-          className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-magenta/5 rounded-full blur-[100px] pointer-events-none" 
-          aria-hidden="true"
-        />
-
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200/80 text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-3.5">
-            <Factory className="h-3.5 w-3.5 text-brand-magenta" />
-            <span>Fasilitas Fabrikasi In-House &bull; 1.000+ m²</span>
-          </div>
-
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-extrabold mb-3 tracking-tight text-zinc-900 leading-[1.15]">
-            Layanan & Kapasitas <span className="text-brand-magenta">Fabrikasi</span>
+      {/* Editorial Workshop Graph-Paper Hero Header */}
+      <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-paper-cream bg-grid-paper border-b border-zinc-200/80 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 text-center relative z-10">
+          <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-3xl mx-auto">
+            Layanan &amp; kapasitas{" "}
+            <span className="font-script font-normal text-brand-magenta text-5xl sm:text-6xl lg:text-[4.5rem] tracking-normal inline-block">
+              fabrikasi.
+            </span>
           </h1>
 
-          <p className="text-zinc-600 text-xs sm:text-sm max-w-2xl mx-auto font-normal leading-relaxed mb-5">
-            Dari cetak biru CAD hingga instalasi struktural di venue. Standar presisi tinggi untuk pameran berskala nasional, panggung korporat, dan aktivasi brand.
+          <p className="mt-5 text-zinc-700 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            Standar fabrikasi in-house untuk pameran nasional, panggung korporat, dan aktivasi brand.
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-5">
             <a
-              href="#services-catalog"
-              className="inline-flex items-center justify-center min-h-[38px] px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-xs sm:text-sm hover:bg-zinc-800 transition-colors shadow-xs"
-            >
-              Jelajahi Spesifikasi Layanan
-            </a>
-            <a
-              href="https://wa.me/6281188820067?text=Halo%20Maganta%20Kreasi%2C%20saya%20ingin%20konsultasi%20kebutuhan%20fabrikasi%20event."
+              href={waConsultUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-h-[38px] px-4 py-2 rounded-lg border border-zinc-300 bg-white text-zinc-800 font-medium text-xs sm:text-sm hover:bg-zinc-50 transition-colors shadow-xs"
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-7 py-3 rounded-full bg-brand-magenta hover:bg-brand-magenta-hover text-white font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 active:opacity-90"
             >
-              Konsultasi Cepat Tim Teknis
+              <span>Konsultasi Tim Teknis</span>
+              <ArrowUpRight size={16} aria-hidden="true" />
             </a>
+            <a
+              href="#services-catalog"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-900 hover:text-brand-magenta transition-colors underline underline-offset-4 decoration-zinc-400 hover:decoration-brand-magenta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 rounded-xs"
+            >
+              <span>Lihat spesifikasi layanan</span>
+              <ArrowDown size={15} aria-hidden="true" />
+            </a>
+          </div>
+
+          {/* Compact Architectural Capacity Strip */}
+          <div className="mt-12 pt-8 border-t border-zinc-900/10 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div>
+              <p className="font-sans text-xl sm:text-2xl font-bold text-zinc-950 tabular-nums">
+                1.000m²
+              </p>
+              <p className="text-xs text-zinc-600 mt-0.5">Workshop Mandiri</p>
+            </div>
+            <div>
+              <p className="font-sans text-xl sm:text-2xl font-bold text-brand-magenta tabular-nums">
+                100%
+              </p>
+              <p className="text-xs text-zinc-600 mt-0.5">Produksi In-House</p>
+            </div>
+            <div>
+              <p className="font-sans text-xl sm:text-2xl font-bold text-zinc-950 tabular-nums">
+                24/7
+              </p>
+              <p className="text-xs text-zinc-600 mt-0.5">Tim Loading Venue</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Services Detail List */}
-      <section id="services-catalog" className="py-8 sm:py-12">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <ServicesList categories={categories} />
+      {/* Services Specification Grid */}
+      <section id="services-catalog" className="py-16 md:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <ServicesList categories={categories} whatsappNumber={cleanWa} />
+        </div>
+      </section>
+
+      {/* Bold Yellow Closing Banner matching the Process Band */}
+      <section className="py-14 md:py-16 bg-brand-yellow text-brand-dark">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark leading-tight">
+              Punya brief desain atau gambar kerja custom?
+            </h2>
+            <p className="mt-2 text-sm text-brand-dark/80 leading-relaxed">
+              Kirimkan ukuran venue dan referensi konsep Anda, lalu tim workshop kami bantu hitung
+              estimasi material, jadwal produksi, dan loading secara transparan.
+            </p>
+          </div>
+          <a
+            href={waConsultUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 min-h-[44px] px-7 py-3 rounded-full bg-brand-dark hover:bg-brand-magenta text-white font-semibold text-sm shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-dark focus-visible:ring-offset-2 focus-visible:ring-offset-brand-yellow active:opacity-90"
+          >
+            <span>Hubungi Tim Workshop</span>
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
         </div>
       </section>
 

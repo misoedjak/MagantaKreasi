@@ -5,6 +5,7 @@ import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { Menu, X, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface NavbarProps {
   whatsappNumber?: string;
@@ -20,6 +21,8 @@ export default function Navbar({
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { lang, setLang } = useLanguage();
+  const isEn = lang === "en";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -39,15 +42,27 @@ export default function Navbar({
     };
   }, [mobileMenuOpen]);
 
-  const navLinks = [
-    { name: "Beranda", href: "/" },
-    { name: "Tentang Kami", href: "/#about" },
-    { name: "Layanan", href: "/services" },
-    { name: "Sewa Produk", href: "/products" },
-    { name: "Portofolio", href: "/portfolio" },
-    { name: "Klien", href: "/clients" },
-    { name: "Hubungi Kami", href: "/#contact" },
-  ];
+  const navLinks = isEn
+    ? [
+        { name: "Home", href: "/" },
+        { name: "About Us", href: "/#about" },
+        { name: "Services", href: "/services" },
+        { name: "Rentals", href: "/products" },
+        { name: "Portfolio", href: "/portfolio" },
+        { name: "Clients", href: "/clients" },
+        { name: "Contact", href: "/#contact" },
+      ]
+    : [
+        { name: "Beranda", href: "/" },
+        { name: "Tentang Kami", href: "/#about" },
+        { name: "Layanan", href: "/services" },
+        { name: "Sewa Produk", href: "/products" },
+        { name: "Portofolio", href: "/portfolio" },
+        { name: "Klien", href: "/clients" },
+        { name: "Hubungi Kami", href: "/#contact" },
+      ];
+
+  const ctaLabel = isEn ? "Book Now" : "Pesan di Sini";
 
   const cleanWhatsapp = (() => {
     let clean = whatsappNumber.replace(/[^0-9]/g, "");
@@ -86,48 +101,113 @@ export default function Navbar({
             </Link>
           </div>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Desktop Links (Centered so right-side switcher & CTA stay locked in place) */}
+          <div className="hidden md:flex flex-1 items-center justify-center gap-5 lg:gap-6 px-4">
             {navLinks.map((link) => (
               <Link
-                key={link.name}
+                key={link.href}
                 href={link.href}
-                className="text-xs font-medium text-white/90 hover:text-brand-yellow transition-all relative py-1.5 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-sm"
+                className="text-xs font-medium text-white/90 hover:text-brand-yellow transition-colors relative py-1.5 group whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-sm"
               >
                 <span>{link.name}</span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-yellow transition-all duration-300 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-yellow transition-[width] duration-300 group-hover:w-full" />
               </Link>
             ))}
+          </div>
+
+          {/* Desktop Right Controls (Fixed widths so ID/EN never shifts under cursor) */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            {/* Language Switcher (ID | EN) */}
+            <div
+              role="group"
+              aria-label="Language switcher"
+              className="inline-flex items-center rounded-full bg-white/15 border border-white/25 p-0.5 text-[11px] font-bold shrink-0"
+            >
+              <button
+                type="button"
+                onClick={() => setLang("id")}
+                aria-pressed={lang === "id"}
+                className={`w-8 py-1 text-center rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-yellow ${
+                  lang === "id"
+                    ? "bg-white text-brand-magenta shadow-xs"
+                    : "text-white/85 hover:text-white"
+                }`}
+              >
+                ID
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                aria-pressed={lang === "en"}
+                className={`w-8 py-1 text-center rounded-full transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-yellow ${
+                  lang === "en"
+                    ? "bg-white text-brand-magenta shadow-xs"
+                    : "text-white/85 hover:text-white"
+                }`}
+              >
+                EN
+              </button>
+            </div>
+
             <Link
               href={`${pathname}?quote=open`}
-              className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-brand-yellow text-brand-dark text-xs font-bold hover:bg-white hover:scale-105 active:scale-95 transition-all duration-200 shadow-md hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex items-center justify-center w-[118px] py-2 rounded-full bg-brand-yellow text-brand-dark text-xs font-bold hover:bg-white transition-colors duration-200 shadow-md whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:opacity-90"
             >
-              Pesan di Sini
+              {ctaLabel}
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle (44x44px touch target) */}
-          <button
-            type="button"
-            className="md:hidden text-white z-50 relative w-11 h-11 inline-flex items-center justify-center rounded-xl active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-brand-yellow"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
-            aria-expanded={mobileMenuOpen}
-          >
-            <motion.div
-              key={mobileMenuOpen ? "close" : "menu"}
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+          {/* Mobile Controls: Language Switcher + Menu Toggle */}
+          <div className="flex md:hidden items-center gap-2 z-50 relative">
+            <div
+              role="group"
+              aria-label="Language switcher"
+              className="inline-flex items-center rounded-full bg-white/15 border border-white/25 p-0.5 text-[11px] font-bold"
             >
-              {mobileMenuOpen ? (
-                <X size={22} className="text-brand-yellow" aria-hidden="true" />
-              ) : (
-                <Menu size={22} aria-hidden="true" />
-              )}
-            </motion.div>
-          </button>
+              <button
+                type="button"
+                onClick={() => setLang("id")}
+                aria-pressed={lang === "id"}
+                className={`px-2 py-1 rounded-full transition-colors cursor-pointer ${
+                  lang === "id" ? "bg-white text-brand-magenta" : "text-white/85"
+                }`}
+              >
+                ID
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                aria-pressed={lang === "en"}
+                className={`px-2 py-1 rounded-full transition-colors cursor-pointer ${
+                  lang === "en" ? "bg-white text-brand-magenta" : "text-white/85"
+                }`}
+              >
+                EN
+              </button>
+            </div>
+
+            <button
+              type="button"
+              className="text-white w-11 h-11 inline-flex items-center justify-center rounded-xl active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-brand-yellow"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+              aria-expanded={mobileMenuOpen}
+            >
+              <motion.div
+                key={mobileMenuOpen ? "close" : "menu"}
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {mobileMenuOpen ? (
+                  <X size={22} className="text-brand-yellow" aria-hidden="true" />
+                ) : (
+                  <Menu size={22} aria-hidden="true" />
+                )}
+              </motion.div>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu Drawer */}
@@ -172,7 +252,7 @@ export default function Navbar({
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full min-h-[48px] py-3.5 flex items-center justify-center rounded-full bg-brand-yellow text-brand-dark font-bold text-base hover:bg-white transition-colors shadow-md"
                 >
-                  Pesan di Sini
+                  {ctaLabel}
                 </Link>
                 <div className="flex flex-wrap justify-between items-center gap-2 text-xs text-white/80">
                   <span>{email || "hello@magantakreasi.id"}</span>

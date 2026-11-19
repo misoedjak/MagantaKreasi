@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Product {
   id: string;
@@ -143,6 +144,9 @@ export default function FeaturedProducts({
   products,
   whatsappNumber,
 }: FeaturedProductsProps) {
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
+
   if (products.length === 0) return null;
 
   const formatPrice = (price: number) => {
@@ -178,12 +182,25 @@ export default function FeaturedProducts({
         {/* Centered Minimalist Heading (PostPilot Reference Style) */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12] max-w-2xl mx-auto">
-            Penyewaan alat &amp;
-            <br />
-            pendukung{" "}
-            <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
-              event.
-            </span>
+            {isEn ? (
+              <>
+                Event equipment &amp;
+                <br />
+                production{" "}
+                <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                  rentals.
+                </span>
+              </>
+            ) : (
+              <>
+                Penyewaan alat &amp;
+                <br />
+                pendukung{" "}
+                <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                  event.
+                </span>
+              </>
+            )}
           </h2>
         </div>
 
@@ -211,7 +228,7 @@ export default function FeaturedProducts({
             href="/products"
             className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 hover:text-brand-magenta transition-colors underline underline-offset-4 decoration-zinc-300 hover:decoration-brand-magenta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 active:opacity-80 rounded-xs"
           >
-            <span>Lihat semua katalog</span>
+            <span>{isEn ? "View full catalog" : "Lihat semua katalog"}</span>
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </div>

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface ShowcaseProject {
   id: string;
@@ -55,11 +56,14 @@ function isVideoFile(url?: string | null) {
 }
 
 export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
   const headingText = "In-House Event Workshop Production Premium";
-  const subheading =
-    "Dikerjakan langsung oleh tim produksi di workshop kami sendiri—lebih rapi, tepat waktu, dan siap pasang di lokasi acara.";
+  const subheading = isEn
+    ? "Built directly by our in-house workshop production team—cleaner finishes, on-time delivery, and ready to install at your venue."
+    : "Dikerjakan langsung oleh tim produksi di workshop kami sendiri—lebih rapi, tepat waktu, dan siap pasang di lokasi acara.";
   const bgImageUrl = settings?.bgImageUrl || "/uploads/backgrounds/hero-flame-fest.jpg";
-  const ctaText = settings?.ctaText || "Pesan disini";
+  const ctaText = isEn ? "Order Here" : settings?.ctaText || "Pesan disini";
   const ctaLink = settings?.ctaLink || "#contact";
 
   // Video #1 as the Hero Background

@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, Geist, Covered_By_Your_Grace } from "next/font/google";
+import { Inter, Space_Grotesk, Geist, Covered_By_Your_Grace, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  weight: ["600", "700", "800"],
+  variable: "--font-plus-jakarta-sans",
+  subsets: ["latin"],
+});
 
 const coveredByYourGrace = Covered_By_Your_Grace({
   weight: "400",
@@ -44,7 +50,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={cn("scroll-smooth", "font-sans", geist.variable)} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${coveredByYourGrace.variable} antialiased bg-brand-light text-brand-dark`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${coveredByYourGrace.variable} ${plusJakartaSans.variable} antialiased bg-brand-light text-brand-dark`} suppressHydrationWarning>
         <Providers>
           {children}
           <Suspense fallback={null}>

@@ -2,16 +2,8 @@
 
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import { 
-  Building2, 
-  Layers, 
-  Maximize2, 
-  Sparkles, 
-  MapPin, 
-  ChevronRight,
-  MessageCircle,
-  FileCheck
-} from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, MessageCircle } from "lucide-react";
 import QuoteDialog from "@/components/QuoteDialog";
 
 interface CategoryItem {
@@ -25,19 +17,13 @@ interface CategoryItem {
 
 interface ServicesListProps {
   categories: CategoryItem[];
+  whatsappNumber?: string;
 }
 
-function getCategoryIcon(slug: string) {
-  const lower = slug.toLowerCase();
-  if (lower.includes("booth") || lower.includes("pameran")) return <Building2 size={18} aria-hidden="true" />;
-  if (lower.includes("stage") || lower.includes("panggung")) return <Layers size={18} aria-hidden="true" />;
-  if (lower.includes("backdrop") || lower.includes("dekorasi")) return <Maximize2 size={18} aria-hidden="true" />;
-  if (lower.includes("gate") || lower.includes("gerbang")) return <FileCheck size={18} aria-hidden="true" />;
-  if (lower.includes("sign") || lower.includes("totem") || lower.includes("direction")) return <MapPin size={18} aria-hidden="true" />;
-  return <Sparkles size={18} aria-hidden="true" />;
-}
-
-export default function ServicesList({ categories }: ServicesListProps) {
+export default function ServicesList({
+  categories,
+  whatsappNumber = "6281188820067",
+}: ServicesListProps) {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -46,112 +32,127 @@ export default function ServicesList({ categories }: ServicesListProps) {
     setQuoteOpen(true);
   };
 
-  const categoryOptions = useMemo(() => categories.map(c => ({ id: c.id, name: c.name })), [categories]);
+  const categoryOptions = useMemo(
+    () => categories.map((c) => ({ id: c.id, name: c.name })),
+    [categories]
+  );
 
   return (
     <>
       {categories.length === 0 ? (
-        <div className="py-16 text-center text-zinc-600 text-sm border border-dashed border-zinc-200 rounded-2xl">
-          Belum ada layanan fabrikasi. Buat kategori di dashboard admin!
+        <div className="py-16 text-center text-zinc-600 text-sm border border-dashed border-zinc-300">
+          Belum ada layanan fabrikasi. Buat kategori di dashboard admin.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-          {categories.map((category) => {
-            const featureList = category.features 
-              ? category.features.split(",").map(f => f.trim()).filter(Boolean)
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-7 gap-y-12">
+          {categories.map((category, idx) => {
+            const indexLabel = String(idx + 1).padStart(2, "0");
+            const featureList = category.features
+              ? category.features
+                  .split(",")
+                  .map((f) => f.trim())
+                  .filter(Boolean)
               : [];
 
-            const waInquiryUrl = `https://wa.me/6281188820067?text=${encodeURIComponent(
+            const waInquiryUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
               `Halo Maganta Kreasi, saya ingin menanyakan spesifikasi dan estimasi harga untuk ${category.name}.`
             )}`;
 
             return (
-              <div 
-                key={category.id} 
-                className="group bg-white p-4 sm:p-5 border border-zinc-200/90 hover:border-brand-magenta/40 transition-all rounded-2xl flex flex-col justify-between shadow-xs hover:shadow-md"
-              >
-                <div className="space-y-3.5">
-                  {/* Card Thumbnail Image */}
+              <article key={category.id} className="group flex flex-col justify-between">
+                <div>
+                  {/* Sharp Unobstructed Editorial Photo Frame */}
                   {category.bgImageUrl && (
-                    <div className="relative h-40 sm:h-44 w-full rounded-xl overflow-hidden border border-zinc-100 bg-zinc-100 shrink-0">
-                      <Image 
-                        src={category.bgImageUrl} 
+                    <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+                      <Image
+                        src={category.bgImageUrl}
                         alt={`Dokumentasi fabrikasi ${category.name}`}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1440px) 33vw, 25vw"
-                        className="object-cover group-hover:scale-105 motion-reduce:transform-none transition-transform duration-300"
-                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
                       />
                     </div>
                   )}
 
-                  {/* Icon & Title */}
-                  <div className="flex items-center gap-2.5 pt-0.5">
-                    <div className="w-8 h-8 rounded-lg bg-brand-magenta/10 flex items-center justify-center text-brand-magenta shrink-0">
-                      {getCategoryIcon(category.slug)}
+                  {/* Hairline Top Rule + Index & Portfolio Link */}
+                  <div className="pt-4 mt-4 border-t border-zinc-200 group-hover:border-brand-magenta transition-colors duration-200">
+                    <div className="flex items-center justify-between gap-2 text-xs text-zinc-500">
+                      <span className="font-mono font-semibold tabular-nums text-brand-magenta">
+                        {indexLabel}
+                      </span>
+                      <Link
+                        href={`/portfolio?category=${category.slug}`}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-zinc-600 hover:text-brand-magenta transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 rounded-xs"
+                      >
+                        <span>Lihat portofolio</span>
+                        <ArrowUpRight
+                          size={13}
+                          aria-hidden="true"
+                          className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+                        />
+                      </Link>
                     </div>
-                    <h3 className="font-heading text-base font-bold text-zinc-900 tracking-tight leading-snug line-clamp-1" title={category.name}>
+
+                    {/* Title & Full Description */}
+                    <h2 className="mt-2 font-sans text-lg sm:text-xl font-bold text-zinc-950 tracking-tight leading-snug">
                       {category.name}
-                    </h3>
-                  </div>
+                    </h2>
 
-                  {/* Description */}
-                  {category.description && (
-                    <p className="text-zinc-600 text-xs leading-relaxed font-normal line-clamp-2 min-h-[34px]" title={category.description}>
-                      {category.description}
-                    </p>
-                  )}
-
-                  {/* Compact Feature Bullets */}
-                  {featureList.length > 0 && (
-                    <div className="space-y-1.5 pt-1 border-t border-zinc-100/80">
-                      <p className="text-xs text-zinc-400 uppercase font-semibold tracking-wider">
-                        Fitur & Kelengkapan
+                    {category.description && (
+                      <p className="mt-2 text-zinc-600 text-xs sm:text-sm leading-relaxed">
+                        {category.description}
                       </p>
-                      <ul className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-zinc-700">
+                    )}
+
+                    {/* Clean Specification List */}
+                    {featureList.length > 0 && (
+                      <ul className="mt-4 pt-3.5 border-t border-zinc-100 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-zinc-700">
                         {featureList.slice(0, 6).map((feat, fIdx) => (
-                          <li key={fIdx} className="flex items-center gap-1.5 min-w-0" title={feat}>
-                            <span className="h-1.5 w-1.5 rounded-full bg-brand-magenta shrink-0" aria-hidden="true" />
-                            <span className="truncate text-xs text-zinc-700 font-medium">{feat}</span>
+                          <li key={fIdx} className="flex items-center gap-2 min-w-0" title={feat}>
+                            <span
+                              className="h-1.5 w-1.5 bg-brand-magenta shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span className="truncate font-medium">{feat}</span>
                           </li>
                         ))}
                       </ul>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
-                {/* Compact Action Bar */}
-                <div className="pt-3 mt-4 border-t border-zinc-100 flex items-center justify-between gap-2">
-                  <button 
+                {/* Clean Action Row */}
+                <div className="mt-6 pt-4 border-t border-zinc-200/80 flex items-center gap-2.5">
+                  <button
                     type="button"
                     onClick={() => handleRequestQuote(category.name)}
-                    className="inline-flex items-center justify-center gap-1 flex-1 py-2 px-3 rounded-lg min-h-[40px] bg-brand-magenta text-white hover:bg-brand-magenta/90 text-xs font-semibold transition-colors cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:outline-none"
+                    className="inline-flex items-center justify-center gap-1.5 flex-1 min-h-[42px] px-4 py-2 bg-brand-magenta hover:bg-brand-magenta-hover text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 active:opacity-90"
                   >
                     <span>Minta Penawaran</span>
-                    <ChevronRight size={14} aria-hidden="true" />
+                    <ArrowUpRight size={15} aria-hidden="true" />
                   </button>
 
                   <a
                     href={waInquiryUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Konsultasi cepat via WhatsApp"
-                    className="inline-flex items-center justify-center p-2 rounded-lg min-h-[40px] min-w-[40px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+                    title={`Konsultasi ${category.name} via WhatsApp`}
+                    aria-label={`Konsultasi ${category.name} via WhatsApp`}
+                    className="inline-flex items-center justify-center min-h-[42px] min-w-[42px] border border-zinc-200 hover:border-brand-magenta text-zinc-700 hover:text-brand-magenta transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-2 active:opacity-80"
                   >
-                    <MessageCircle size={16} className="text-emerald-600" aria-hidden="true" />
-                    <span className="sr-only">Tanya WhatsApp</span>
+                    <MessageCircle size={17} aria-hidden="true" />
                   </a>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
       )}
 
       {/* Quote Dialog */}
-      <QuoteDialog 
-        open={quoteOpen} 
-        onOpenChange={setQuoteOpen} 
+      <QuoteDialog
+        open={quoteOpen}
+        onOpenChange={setQuoteOpen}
         categories={categoryOptions}
         preselectedCategory={selectedCategory}
       />

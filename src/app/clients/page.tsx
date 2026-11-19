@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Handshake, Award, CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -10,19 +10,29 @@ export const revalidate = 0;
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Klien & Mitra Kami | Maganta Kreasi",
-    description: "Temukan brand, perusahaan, dan institusi terkemuka yang mempercayakan layanan fabrikasi panggung dan event kepada Maganta Kreasi.",
+    description:
+      "Temukan brand, perusahaan, dan institusi terkemuka yang mempercayakan layanan fabrikasi panggung dan event kepada Maganta Kreasi.",
   };
 }
 
 export default async function ClientsPage() {
-  const profile = await prisma.companyProfile.findFirst();
-  const dbClients = await prisma.client.findMany({
-    orderBy: { order: "asc" },
-  });
-  const clientPortfolios = await prisma.portfolio.findMany({
-    where: { status: "published" },
-    select: { client: true, slug: true, title: true },
-  });
+  const [profile, dbClients, clientPortfolios] = await Promise.all([
+    prisma.companyProfile.findFirst(),
+    prisma.client.findMany({ orderBy: { order: "asc" } }),
+    prisma.portfolio.findMany({
+      where: { status: "published" },
+      select: { client: true, slug: true, title: true },
+    }),
+  ]);
+
+  const contactWhatsapp = profile?.whatsapp || profile?.phone || "6281188820067";
+  let cleanWa = contactWhatsapp.replace(/[^0-9]/g, "");
+  if (cleanWa.startsWith("0")) {
+    cleanWa = "62" + cleanWa.substring(1);
+  }
+  const waConsultUrl = `https://wa.me/${cleanWa}?text=${encodeURIComponent(
+    "Halo Maganta Kreasi, saya ingin mendiskusikan kolaborasi produksi event bersama tim Anda."
+  )}`;
 
   const logosToRender = dbClients.map((c) => {
     const cLower = c.name.toLowerCase();
@@ -39,157 +49,118 @@ export default async function ClientsPage() {
     };
   });
 
-  const dbCaseStudies = dbClients.filter((c) => c.feedback && c.feedback.trim() !== "");
-  const caseStudiesToRender = dbCaseStudies.map((c) => {
-    const cLower = c.name.toLowerCase();
-    const match = clientPortfolios.find((p) => {
-      if (!p.client) return false;
-      const pLower = p.client.toLowerCase();
-      return pLower === cLower || pLower.includes(cLower) || cLower.includes(pLower);
-    });
-
-    return {
-      client: c.name,
-      event: c.event || "Corporate Event",
-      type: c.type || "Custom Fabrication",
-      feedback: c.feedback!,
-      stat: c.stat || "Kualitas Premium",
-      portfolioSlug: match ? match.slug : null,
-    };
-  });
-
   return (
-    <div className="min-h-screen bg-brand-light text-brand-dark font-sans selection:bg-[#FFD400] selection:text-black">
-      <Navbar />
+    <div className="min-h-screen bg-white text-brand-dark font-sans selection:bg-brand-yellow selection:text-brand-dark">
+      <Navbar
+        whatsappNumber={contactWhatsapp}
+        email={profile?.email}
+        phoneDisplay={profile?.phone || profile?.whatsapp}
+      />
 
-      {/* Hero Header */}
-      <section className="pt-20 pb-6 bg-gradient-to-b from-white to-brand-light/60 relative overflow-hidden border-b border-gray-100">
-        <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-magenta/10 text-brand-magenta text-xs font-semibold uppercase tracking-wider mb-2.5">
-            <Handshake size={13} /> Klien & Mitra Strategis
-          </div>
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-3">
-            Dipercaya Oleh <span className="text-brand-magenta">Brand & Korporat</span> Terkemuka
+      {/* Editorial Workshop Graph-Paper Hero Header */}
+      <section className="pt-28 pb-16 md:pt-36 md:pb-20 bg-paper-cream bg-grid-paper border-b border-zinc-200/80 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 text-center relative z-10">
+          <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-zinc-950 leading-[1.08] max-w-3xl mx-auto">
+            Dipercaya oleh{" "}
+            <span className="font-script font-normal text-brand-magenta text-5xl sm:text-6xl lg:text-[4.5rem] tracking-normal inline-block">
+              brand
+            </span>{" "}
+            terkemuka.
           </h1>
-          <p className="text-gray-500 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-            Membangun reputasi jangka panjang melalui presisi fabrikasi panggung, booth pameran custom, dan instalasi event berstandar tinggi untuk institusi pemerintah, BUMN, korporat multinasional, dan universitas di Indonesia.
+          <p className="mt-5 text-zinc-700 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+            Mitra produksi panggung, booth pameran, dan instalasi event untuk korporasi,
+            institusi, serta festival di Indonesia.
           </p>
         </div>
       </section>
 
-      {/* Partner Logos Grid */}
-      <section className="pt-8 pb-16 bg-brand-light">
-        <div className="container mx-auto px-6 md:px-12">
+      {/* Clean Spacious Partner Logo Wall */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
           {logosToRender.length > 0 ? (
             <>
-              <div className="text-center mb-8">
-                <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
-                  Kemitraan Terpercaya Lintas Sektor
-                </h2>
-                <p className="text-gray-500 text-xs sm:text-sm mt-1">
-                  Klik logo klien untuk melihat dokumentasi proyek fabrikasi panggung dan booth terkait
+              <div className="text-center mb-12">
+                <p className="text-xs sm:text-sm text-zinc-500">
+                  Klik logo yang terhubung untuk melihat dokumentasi proyek terkait.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+              <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-10 sm:gap-x-12 sm:gap-y-12">
                 {logosToRender.map((client, i) => {
-                  const cardContent = (
-                    <div className="bg-white rounded-2xl border border-gray-100 hover:border-brand-magenta/40 hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center p-5 h-28 sm:h-32 group cursor-pointer relative overflow-hidden">
+                  const logoTile = (
+                    <div className="group flex flex-col items-center justify-center px-3 py-2">
                       <img
                         src={client.logoUrl}
-                        alt={client.name}
-                        className="max-h-12 sm:max-h-14 max-w-full object-contain filter group-hover:scale-105 transition-all duration-300"
+                        alt={`Logo ${client.name}`}
+                        loading="lazy"
+                        decoding="async"
+                        className="max-h-11 sm:max-h-14 max-w-[130px] sm:max-w-[165px] object-contain opacity-75 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-[opacity,filter] duration-200"
                       />
                       {client.portfolioSlug && (
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-magenta/15 to-transparent py-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-[10px] text-brand-magenta font-bold flex items-center justify-center gap-1">
-                            Lihat Portofolio <ArrowRight size={10} />
-                          </span>
-                        </div>
+                        <span className="mt-2 inline-flex items-center gap-0.5 text-[11px] font-semibold text-zinc-400 group-hover:text-brand-magenta transition-colors">
+                          <span>Lihat proyek</span>
+                          <ArrowUpRight
+                            size={12}
+                            aria-hidden="true"
+                            className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
+                          />
+                        </span>
                       )}
                     </div>
                   );
 
                   if (client.portfolioSlug) {
                     return (
-                      <Link key={i} href={`/portfolio/${client.portfolioSlug}`} title={`Lihat proyek untuk ${client.name}`}>
-                        {cardContent}
+                      <Link
+                        key={i}
+                        href={`/portfolio/${client.portfolioSlug}`}
+                        aria-label={`Lihat portofolio proyek ${client.name}`}
+                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-magenta focus-visible:ring-offset-4 rounded-xs"
+                      >
+                        {logoTile}
                       </Link>
                     );
                   }
 
-                  return <div key={i}>{cardContent}</div>;
+                  return (
+                    <div key={i} title={client.name}>
+                      {logoTile}
+                    </div>
+                  );
                 })}
               </div>
             </>
           ) : (
-            <div className="py-16 text-center text-zinc-400 flex flex-col items-center gap-2 border border-dashed border-zinc-200 rounded-2xl">
-              <Handshake className="h-8 w-8 text-zinc-400" />
-              <p className="text-sm font-medium">Daftar klien dan testimoni sedang diperbarui.</p>
+            <div className="py-16 text-center text-zinc-500 border border-dashed border-zinc-300">
+              <p className="text-sm font-medium">Daftar klien sedang diperbarui.</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Case Studies / Feedback */}
-      {caseStudiesToRender.length > 0 && (
-        <section className="py-16 bg-gray-50/70 border-t border-gray-100">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-yellow/30 text-brand-dark text-xs font-semibold uppercase tracking-wider mb-2">
-                <Award size={13} className="text-brand-magenta" /> Ulasan Klien Nyata
-              </div>
-              <h2 className="font-heading text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Studi Kasus & Kepercayaan Mitra
-              </h2>
-              <p className="text-gray-500 text-xs sm:text-sm max-w-lg mx-auto">
-                Pengakuan dari para penyelenggara acara dan pimpinan proyek tentang standar produksi workshop serta ketepatan waktu Maganta Kreasi.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {caseStudiesToRender.map((caseStudy, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white p-7 border border-gray-100 rounded-3xl relative overflow-hidden group hover:border-brand-magenta/30 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <span className="text-[10px] font-bold text-brand-magenta uppercase tracking-widest block mb-1">
-                        {caseStudy.type}
-                      </span>
-                      <h3 className="font-heading text-lg font-bold text-gray-900 group-hover:text-brand-magenta transition-colors">
-                        {caseStudy.client}
-                      </h3>
-                      <p className="text-xs text-gray-400 font-medium mt-0.5">{caseStudy.event}</p>
-                    </div>
-                    <p className="text-gray-600 text-xs sm:text-sm leading-relaxed italic bg-gray-50/60 p-4 rounded-2xl border border-gray-100/60">
-                      &ldquo;{caseStudy.feedback}&rdquo;
-                    </p>
-                  </div>
-
-                  <div className="pt-5 border-t border-gray-100 mt-5 flex items-center justify-between text-xs">
-                    <span className="font-semibold text-brand-magenta flex items-center gap-1.5">
-                      <CheckCircle className="h-3.5 w-3.5" />
-                      {caseStudy.stat}
-                    </span>
-                    {caseStudy.portfolioSlug ? (
-                      <Link
-                        href={`/portfolio/${caseStudy.portfolioSlug}`}
-                        className="text-gray-400 hover:text-brand-magenta font-semibold flex items-center gap-1 text-[11px] transition-colors"
-                      >
-                        Dokumentasi <ArrowRight size={11} />
-                      </Link>
-                    ) : (
-                      <span className="text-gray-400 text-[11px]">Verified Partner</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Bold Yellow Closing CTA Band */}
+      <section className="py-14 md:py-16 bg-brand-yellow text-brand-dark">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-brand-dark leading-tight">
+              Siap berkolaborasi untuk event Anda berikutnya?
+            </h2>
+            <p className="mt-2 text-sm text-brand-dark/80 leading-relaxed">
+              Diskusikan kebutuhan booth, panggung, atau instalasi dekorasi langsung bersama tim
+              workshop in-house kami.
+            </p>
           </div>
-        </section>
-      )}
+          <a
+            href={waConsultUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 min-h-[44px] px-7 py-3 rounded-full bg-brand-dark hover:bg-brand-magenta text-white font-semibold text-sm shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-dark focus-visible:ring-offset-2 focus-visible:ring-offset-brand-yellow active:opacity-90"
+          >
+            <span>Mulai Diskusi Proyek</span>
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
+        </div>
+      </section>
 
       <Footer profile={profile} />
     </div>
