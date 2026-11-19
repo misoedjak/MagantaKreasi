@@ -1,4 +1,7 @@
+"use client";
+
 import { Mail, MapPin, Phone, MessageSquare } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface FooterProps {
   profile?: {
@@ -19,6 +22,8 @@ interface FooterProps {
 }
 
 export default function Footer({ profile }: FooterProps) {
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
   const instagramLink = profile?.instagram ? `https://instagram.com/${profile.instagram}` : "#";
 
   const formatWhatsappNumber = (num: string) => {
@@ -39,8 +44,9 @@ export default function Footer({ profile }: FooterProps) {
               MAGANTA<span className="text-brand-yellow">KREASI</span>
             </div>
             <p className="text-white/90 mb-5 leading-relaxed text-xs sm:text-sm max-w-xs">
-              Solusi fabrikasi dan dekorasi event premium. Dari pembuatan booth pameran custom
-              hingga panggung festival berskala besar.
+              {isEn
+                ? "Premium in-house event fabrication and decor—from custom exhibition booths to full-scale festival stages."
+                : "Solusi fabrikasi dan dekorasi event premium. Dari pembuatan booth pameran custom hingga panggung festival berskala besar."}
             </p>
             <div className="flex gap-3">
               {/* Instagram */}
@@ -118,16 +124,27 @@ export default function Footer({ profile }: FooterProps) {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-heading text-base font-bold mb-4 text-white">Tautan Cepat</h3>
+            <h3 className="font-heading text-base font-bold mb-4 text-white">
+              {isEn ? "Quick Links" : "Tautan Cepat"}
+            </h3>
             <ul className="space-y-2.5">
-              {[
-                { name: "Beranda", href: "/test#" },
-                { name: "Tentang Workshop", href: "/test#about" },
-                { name: "Sewa Produk", href: "/products" },
-                { name: "Portofolio Fabrikasi", href: "/test#portfolio" },
-                { name: "Cara Kerja Kami", href: "/test#process" },
-              ].map((link) => (
-                <li key={link.name}>
+              {(isEn
+                ? [
+                    { name: "Home", href: "/" },
+                    { name: "About Workshop", href: "/#about" },
+                    { name: "Equipment Rentals", href: "/products" },
+                    { name: "Portfolio", href: "/portfolio" },
+                    { name: "Production Process", href: "/#process" },
+                  ]
+                : [
+                    { name: "Beranda", href: "/" },
+                    { name: "Tentang Workshop", href: "/#about" },
+                    { name: "Sewa Produk", href: "/products" },
+                    { name: "Portofolio Fabrikasi", href: "/portfolio" },
+                    { name: "Cara Kerja Kami", href: "/#process" },
+                  ]
+              ).map((link) => (
+                <li key={link.href}>
                   <a
                     href={link.href}
                     className="text-white/90 hover:text-brand-yellow transition-colors text-xs sm:text-sm inline-block py-0.5"
@@ -141,7 +158,9 @@ export default function Footer({ profile }: FooterProps) {
 
           {/* Kontak Section */}
           <div>
-            <h3 className="font-heading text-base font-bold mb-4 text-white">Kontak</h3>
+            <h3 className="font-heading text-base font-bold mb-4 text-white">
+              {isEn ? "Contact" : "Kontak"}
+            </h3>
             <ul className="space-y-3 text-xs sm:text-sm text-white/95">
               {profile?.phone && (
                 <li className="flex items-center gap-2.5">
@@ -219,7 +238,9 @@ export default function Footer({ profile }: FooterProps) {
 
           {/* Alamat Section */}
           <div>
-            <h3 className="font-heading text-base font-bold mb-4 text-white">Alamat</h3>
+            <h3 className="font-heading text-base font-bold mb-4 text-white">
+              {isEn ? "Address" : "Alamat"}
+            </h3>
             <ul className="space-y-3 text-xs sm:text-sm text-white/95">
               <li className="flex items-start gap-2.5">
                 <div className="w-7 h-7 rounded-full bg-brand-yellow text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
@@ -235,14 +256,17 @@ export default function Footer({ profile }: FooterProps) {
 
         <div className="pt-6 border-t border-white/20 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/85">
           <div className="flex flex-col gap-1 text-center md:text-left">
-            <p>&copy; 2026 Maganta Kreasi. Hak cipta dilindungi.</p>
+            <p>
+              &copy; 2026 Maganta Kreasi.{" "}
+              {isEn ? "All rights reserved." : "Hak cipta dilindungi."}
+            </p>
           </div>
           <div className="flex gap-6">
             <a href="#" className="hover:text-brand-yellow transition-colors py-1">
-              Kebijakan Privasi
+              {isEn ? "Privacy Policy" : "Kebijakan Privasi"}
             </a>
             <a href="#" className="hover:text-brand-yellow transition-colors py-1">
-              Syarat & Ketentuan
+              {isEn ? "Terms & Conditions" : "Syarat & Ketentuan"}
             </a>
           </div>
         </div>
