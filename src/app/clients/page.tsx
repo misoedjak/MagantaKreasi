@@ -8,9 +8,10 @@ export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Klien & Mitra Kami | Maganta Kreasi",
+    title: "Klien & Mitra Event",
     description:
-      "Temukan brand, perusahaan, dan institusi terkemuka yang mempercayakan layanan fabrikasi panggung dan event kepada Maganta Kreasi.",
+      "Brand korporasi, kementerian, universitas, dan festival di Indonesia yang mempercayakan produksi booth pameran dan panggung event kepada Maganta Kreasi.",
+    alternates: { canonical: "/clients" },
   };
 }
 

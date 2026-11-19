@@ -9,9 +9,10 @@ export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Layanan & Kapasitas Fabrikasi | Maganta Kreasi",
+    title: "Layanan Fabrikasi Booth, Panggung & Dekorasi Event",
     description:
-      "Fabrikasi booth pameran, setup panggung, backdrop, gate, wayfinding, dan instalasi dekoratif artistik berstandar presisi tinggi oleh Maganta Kreasi.",
+      "Jasa fabrikasi booth pameran custom, panggung event, backdrop, main gate, totem signage, dan instalasi dekoratif 3D langsung dari workshop in-house Maganta Kreasi Bekasi.",
+    alternates: { canonical: "/services" },
   };
 }
 

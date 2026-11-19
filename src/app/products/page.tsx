@@ -9,9 +9,10 @@ export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Katalog Produk & Peralatan Sewa | Maganta Kreasi",
+    title: "Sewa Alat Event, Tenda, Videotron, Sound & Furniture",
     description:
-      "Telusuri inventaris peralatan sewa event premium kami termasuk pencahayaan panggung profesional, sound system, truss, dan rigging.",
+      "Katalog sewa peralatan event lengkap Jakarta & Bekasi: tenda sarnafil & roder, LED videotron P3.9, sound system, lighting panggung, genset silent, AC standing, kursi & meja VIP.",
+    alternates: { canonical: "/products" },
   };
 }
 

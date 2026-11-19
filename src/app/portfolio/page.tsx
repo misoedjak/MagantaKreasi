@@ -9,9 +9,10 @@ export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Portofolio Proyek | Maganta Kreasi",
+    title: "Portofolio Proyek Booth Pameran & Panggung Event",
     description:
-      "Lihat semua booth pameran custom, fabrikasi panggung, setup backdrop, dan instalasi dekoratif yang diselesaikan oleh Maganta Kreasi.",
+      "Dokumentasi proyek booth pameran custom, panggung konser & korporat, backdrop, dan instalasi dekoratif 3D yang dikerjakan langsung oleh workshop Maganta Kreasi.",
+    alternates: { canonical: "/portfolio" },
   };
 }
 
