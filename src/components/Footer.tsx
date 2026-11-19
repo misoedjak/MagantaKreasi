@@ -24,7 +24,11 @@ interface FooterProps {
 export default function Footer({ profile }: FooterProps) {
   const { lang } = useLanguage();
   const isEn = lang === "en";
-  const instagramLink = profile?.instagram ? `https://instagram.com/${profile.instagram}` : "#";
+  const instagramLink = profile?.instagram
+    ? profile.instagram.startsWith("http")
+      ? profile.instagram
+      : `https://www.instagram.com/${profile.instagram.replace(/^@/, "")}/`
+    : "https://www.instagram.com/magantakreasi/";
 
   const formatWhatsappNumber = (num: string) => {
     let clean = num.replace(/[^0-9]/g, "");
@@ -53,9 +57,9 @@ export default function Footer({ profile }: FooterProps) {
               <a
                 href={instagramLink}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label="Instagram Maganta Kreasi"
-                className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-dark transition-colors focus-visible:outline-2 focus-visible:outline-brand-yellow"
+                className="inline-flex items-center gap-2 px-3.5 h-10 rounded-full bg-white/15 hover:bg-brand-yellow hover:text-brand-dark text-white text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-brand-yellow"
               >
                 <svg
                   aria-hidden="true"
@@ -72,52 +76,7 @@ export default function Footer({ profile }: FooterProps) {
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
-              </a>
-              {/* Facebook */}
-              <a
-                href={profile?.facebook || "#"}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook Maganta Kreasi"
-                className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-dark transition-colors focus-visible:outline-2 focus-visible:outline-brand-yellow"
-              >
-                <svg
-                  aria-hidden="true"
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                </svg>
-              </a>
-              {/* LinkedIn */}
-              <a
-                href={profile?.linkedin || "#"}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="LinkedIn Maganta Kreasi"
-                className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center hover:bg-brand-yellow hover:text-brand-dark transition-colors focus-visible:outline-2 focus-visible:outline-brand-yellow"
-              >
-                <svg
-                  aria-hidden="true"
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                  <rect x="2" y="9" width="4" height="12"></rect>
-                  <circle cx="4" cy="4" r="2"></circle>
-                </svg>
+                <span>@magantakreasi</span>
               </a>
             </div>
           </div>
@@ -246,9 +205,15 @@ export default function Footer({ profile }: FooterProps) {
                 <div className="w-7 h-7 rounded-full bg-brand-yellow text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin size={13} aria-hidden="true" />
                 </div>
-                <span className="whitespace-pre-line leading-relaxed text-white">
-                  {profile?.address || "Jakarta, Indonesia"}
-                </span>
+                <a
+                  href="https://www.google.com/maps/place/MAGANTA+KREASI/@-6.2846527,107.0533447,17z/data=!4m6!3m5!1s0x2e6991a01e4dfca5:0x491f21ecaa20f8d3!8m2!3d-6.2846543!4d107.0533416!16s%2Fg%2F11x0zhdxjz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="whitespace-pre-line leading-relaxed text-white hover:text-brand-yellow transition-colors"
+                >
+                  {profile?.address ||
+                    "Jl. Kampung Pekopen No.61, Lambangjaya, Kec. Tambun Sel., Kabupaten Bekasi, Jawa Barat 17510"}
+                </a>
               </li>
             </ul>
           </div>

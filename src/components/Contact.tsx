@@ -43,12 +43,17 @@ export default function Contact({ profile }: ContactProps) {
     : "https://wa.me/6281234567890";
 
   const cleanAddress = (
-    profile?.address || "Jakarta, Indonesia\nMelayani fabrikasi untuk seluruh Indonesia."
+    profile?.address ||
+    "Jl. Kampung Pekopen No.61, Lambangjaya, Kec. Tambun Sel., Kabupaten Bekasi, Jawa Barat 17510"
   )
     .split(/Phone:/i)[0]
     .trim();
 
-  let mapSrc = "https://maps.google.com/maps?q=-6.2846527,107.0533447&hl=id&z=17&output=embed";
+  const googleMapsPlaceUrl =
+    "https://www.google.com/maps/place/MAGANTA+KREASI/@-6.2846527,107.0533447,17z/data=!4m6!3m5!1s0x2e6991a01e4dfca5:0x491f21ecaa20f8d3!8m2!3d-6.2846543!4d107.0533416!16s%2Fg%2F11x0zhdxjz";
+
+  let mapSrc =
+    "https://maps.google.com/maps?q=MAGANTA+KREASI@-6.2846543,107.0533416&hl=id&z=17&output=embed";
   if (profile?.mapUrl && profile.mapUrl.includes("embed")) {
     mapSrc = profile.mapUrl;
   } else if (profile?.address) {
@@ -124,9 +129,14 @@ export default function Contact({ profile }: ContactProps) {
                   <MapPin className="text-brand-yellow shrink-0" size={20} aria-hidden="true" />
                   <span>{isEn ? "Office & Workshop" : "Kantor & Workshop"}</span>
                 </h3>
-                <p className="text-white/90 whitespace-pre-line text-xs sm:text-sm leading-relaxed">
+                <a
+                  href={googleMapsPlaceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/90 hover:text-brand-yellow transition-colors whitespace-pre-line text-xs sm:text-sm leading-relaxed block"
+                >
                   {cleanAddress}
-                </p>
+                </a>
               </div>
 
               {/* Google Maps Embed */}
