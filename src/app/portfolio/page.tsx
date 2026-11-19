@@ -2,57 +2,47 @@ import { prisma } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Portfolio from "@/components/Portfolio";
+import PortfolioHero from "@/components/PortfolioHero";
 import { Metadata } from "next";
 
 export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Katalog Portofolio Proyek | Maganta Kreasi",
-    description: "Lihat semua booth pameran custom, fabrikasi panggung, setup backdrop, dan instalasi dekoratif yang diselesaikan oleh Maganta Kreasi.",
+    title: "Portofolio Proyek | Maganta Kreasi",
+    description:
+      "Lihat semua booth pameran custom, fabrikasi panggung, setup backdrop, dan instalasi dekoratif yang diselesaikan oleh Maganta Kreasi.",
   };
 }
 
 export default async function PortfolioCataloguePage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
-
-  const portfolios = await prisma.portfolio.findMany({
-    where: { status: "published" },
-    orderBy: { createdAt: "desc" },
-    include: {
-      category: {
-        select: { id: true, name: true }
+  const [categories, portfolios, profile] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.portfolio.findMany({
+      where: { status: "published" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        category: { select: { id: true, name: true } },
+        images: { orderBy: { order: "asc" } },
       },
-      images: {
-        orderBy: { order: "asc" }
-      }
-    }
-  });
+    }),
+    prisma.companyProfile.findFirst(),
+  ]);
 
-  const profile = await prisma.companyProfile.findFirst();
+  const contactWhatsapp = profile?.whatsapp || profile?.phone || "6282115151515";
 
   return (
-    <div className="min-h-screen bg-brand-light text-brand-dark font-sans selection:bg-[#FFD400] selection:text-black">
-      <Navbar />
+    <div className="min-h-screen bg-white text-brand-dark font-sans selection:bg-brand-yellow selection:text-brand-dark">
+      <Navbar
+        whatsappNumber={contactWhatsapp}
+        email={profile?.email}
+        phoneDisplay={profile?.phone || profile?.whatsapp}
+      />
 
-      {/* Hero Header */}
-      <section className="pt-32 pb-8 bg-gradient-to-b from-white to-brand-light relative overflow-hidden border-b border-brand-magenta/5">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-magenta/5 rounded-full blur-[100px] pointer-events-none" />
-        <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
-          <h1 className="font-heading text-4xl md:text-6xl font-bold mb-4 tracking-tight text-brand-dark">
-            Fabrication <span className="text-brand-magenta">Portfolio</span>
-          </h1>
-          <p className="text-zinc-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
-            Browse our full catalog of custom booths, monumental stages, and decorative visual installations.
-          </p>
-        </div>
-      </section>
+      <PortfolioHero />
 
-      {/* Mounting the reusable dynamic grid component */}
       <div className="pb-16">
-        <Portfolio initialPortfolios={portfolios} categories={categories} />
+        <Portfolio initialPortfolios={portfolios} categories={categories} hideHeader />
       </div>
 
       <Footer profile={profile} />

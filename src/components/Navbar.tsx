@@ -101,17 +101,18 @@ export default function Navbar({
             </Link>
           </div>
 
-          {/* Desktop Links (Centered so right-side switcher & CTA stay locked in place) */}
-          <div className="hidden md:flex flex-1 items-center justify-center gap-5 lg:gap-6 px-4">
+          {/* Desktop Links (Fixed 7-column grid so every link stays at the exact same position in ID & EN) */}
+          <div className="hidden md:grid grid-cols-7 items-center flex-1 max-w-[650px] mx-4">
             {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-xs font-medium text-white/90 hover:text-brand-yellow transition-colors relative py-1.5 group whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-sm"
-              >
-                <span>{link.name}</span>
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-yellow transition-[width] duration-300 group-hover:w-full" />
-              </Link>
+              <div key={link.href} className="flex justify-center">
+                <Link
+                  href={link.href}
+                  className="text-xs font-medium text-white/90 hover:text-brand-yellow transition-colors relative py-1.5 group whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow rounded-sm"
+                >
+                  <span>{link.name}</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-yellow transition-[width] duration-300 group-hover:w-full" />
+                </Link>
+              </div>
             ))}
           </div>
 

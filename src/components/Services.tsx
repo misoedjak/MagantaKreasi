@@ -735,6 +735,12 @@ function ServicePosterArt({
 const CUSTOM_SERVICE_ART: Partial<Record<CuratedServiceMeta["artKind"], string>> = {
   branding: "/images/service-branding-area-v3.jpg",
   booth: "/images/service-exhibition-booth-v2.jpg",
+  stage: "/images/service-custom-stage-v2.jpg",
+  decor: "/images/service-decorative-installation-v2.jpg",
+  gate: "/images/service-entrance-gate.jpg",
+  backdrop: "/images/service-event-backdrop.jpg",
+  festival: "/images/service-festival-decoration-v2.jpg",
+  totem: "/images/service-totem-signage.jpg",
 };
 
 export default function Services({ categories = [] }: ServicesProps) {

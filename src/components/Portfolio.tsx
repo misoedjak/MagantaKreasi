@@ -37,6 +37,7 @@ interface PortfolioProps {
   initialPortfolios: PortfolioItem[];
   categories: { id: string; name: string; slug: string }[];
   layoutMode?: "grid" | "carousel";
+  hideHeader?: boolean;
 }
 
 function PortfolioCard({
@@ -186,6 +187,7 @@ export default function Portfolio({
   initialPortfolios,
   categories,
   layoutMode = "grid",
+  hideHeader = false,
 }: PortfolioProps) {
   const [activeFilter, setActiveFilter] = useState("Semua");
   const { lang } = useLanguage();
@@ -262,39 +264,41 @@ export default function Portfolio({
       >
         <div className="max-w-6xl mx-auto px-6 md:px-10">
           {/* Centered Editorial Header */}
-          <div className="flex flex-col items-center mb-12 md:mb-16 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center max-w-2xl mx-auto"
-            >
-              <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12]">
-                {isEn ? (
-                  <>
-                    Our{" "}
-                    <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
-                      portfolio.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Portofolio{" "}
-                    <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
-                      kami.
-                    </span>
-                  </>
-                )}
-              </h2>
-            </motion.div>
+          <div className="flex flex-col items-center mb-10 md:mb-14 gap-6">
+            {!hideHeader && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center max-w-2xl mx-auto"
+              >
+                <h2 className="font-sans text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-zinc-900 leading-[1.12]">
+                  {isEn ? (
+                    <>
+                      Our{" "}
+                      <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                        portfolio.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Portofolio{" "}
+                      <span className="font-script font-normal text-brand-magenta text-4xl sm:text-5xl lg:text-[3.75rem] tracking-normal inline-block">
+                        kami.
+                      </span>
+                    </>
+                  )}
+                </h2>
+              </motion.div>
+            )}
 
-            {/* Category Filters - Only show in grid mode (/portfolio page) */}
+            {/* Category Filters - Wrapped cleanly with zero horizontal clipping */}
             {layoutMode === "grid" && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:flex-wrap md:justify-center scrollbar-none shrink-0 max-w-full"
+                className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto"
               >
                 <button
                   type="button"

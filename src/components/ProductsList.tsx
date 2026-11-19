@@ -3,6 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext";
+import {
+  translateCategoryName,
+  translateProductDescription,
+  translatePriceUnit,
+} from "@/lib/productTranslations";
 import {
   MessageSquare,
   Search,
@@ -63,6 +69,8 @@ interface ProductsListProps {
 }
 
 export default function ProductsList({ products, categories, whatsappNumber }: ProductsListProps) {
+  const { lang } = useLanguage();
+  const isEn = lang === "en";
   const [selectedCategory, setSelectedCategory] = useState<string>("semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
@@ -269,8 +277,8 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
               aria-expanded={isCategoryDropdownOpen}
             >
               <LayoutGrid size={14} className={isCategoryDropdownOpen ? "text-white" : "text-brand-magenta"} />
-              <span className="hidden sm:inline">Pilih Kategori</span>
-              <span className="sm:hidden">Kategori</span>
+              <span className="hidden sm:inline">{isEn ? "Select Category" : "Pilih Kategori"}</span>
+              <span className="sm:hidden">{isEn ? "Category" : "Kategori"}</span>
               <ChevronDown
                 size={14}
                 className={`transition-transform duration-200 ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
@@ -293,7 +301,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                     className="absolute left-0 top-full mt-2 z-40 w-72 sm:w-80 bg-white rounded-2xl shadow-xl border border-gray-100 p-2.5 max-h-80 overflow-y-auto"
                   >
                     <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1 mb-1">
-                      Kategori Peralatan Event
+                      {isEn ? "Event Equipment Categories" : "Kategori Peralatan Event"}
                     </div>
                     <button
                       onClick={() => {
@@ -306,9 +314,9 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                           : "text-gray-700 hover:bg-gray-50"
                       }`}
                     >
-                      <span>Semua Produk</span>
+                      <span>{isEn ? "All Products" : "Semua Produk"}</span>
                       <span className="text-[11px] text-gray-400">
-                        {products.filter((p) => p.status === "active").length} alat
+                        {products.filter((p) => p.status === "active").length} {isEn ? "items" : "alat"}
                       </span>
                     </button>
                     <div className="h-px bg-gray-100 my-1" />
@@ -331,8 +339,10 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                               : "text-gray-700 hover:bg-gray-50"
                           }`}
                         >
-                          <span className="truncate">{cat.name}</span>
-                          <span className="text-[11px] text-gray-400 shrink-0 ml-2">{count} alat</span>
+                          <span className="truncate">{translateCategoryName(cat.slug, cat.name, isEn)}</span>
+                          <span className="text-[11px] text-gray-400 shrink-0 ml-2">
+                            {count} {isEn ? "items" : "alat"}
+                          </span>
                         </button>
                       );
                     })}
@@ -376,7 +386,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                       : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
                   }`}
                 >
-                  Semua ({products.filter((p) => p.status === "active").length})
+                  {isEn ? "All" : "Semua"} ({products.filter((p) => p.status === "active").length})
                 </button>
                 {categories.map((cat) => {
                   const count = products.filter((p) => p.categoryId === cat.id && p.status === "active").length;
@@ -391,7 +401,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                           : "bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta/40 hover:bg-gray-50"
                       }`}
                     >
-                      {cat.name} ({count})
+                      {translateCategoryName(cat.slug, cat.name, isEn)} ({count})
                     </button>
                   );
                 })}
@@ -427,10 +437,14 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
           <input
             id="product-search"
             type="text"
-            placeholder="Cari alat (genset, tenda, sound)..."
+            placeholder={
+              isEn
+                ? "Search equipment (genset, tent, sound)..."
+                : "Cari alat (genset, tenda, sound)..."
+            }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Cari peralatan sewa event"
+            aria-label={isEn ? "Search event rental equipment" : "Cari peralatan sewa event"}
             className="w-full h-10 pl-9 pr-9 bg-white border border-gray-200 rounded-full text-xs sm:text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-magenta/20 focus:border-brand-magenta shadow-sm"
           />
           {searchQuery && (
@@ -448,12 +462,15 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
       {/* Results Feedback Header */}
       <div className="mb-4 flex flex-wrap justify-between items-center text-xs text-gray-500 gap-2">
         <span className="font-medium">
-          Menampilkan <span className="text-gray-900 font-bold">{Math.min(visibleCount, filteredProducts.length)}</span> dari{" "}
-          <span className="text-gray-900 font-bold">{filteredProducts.length}</span> peralatan sewa
+          {isEn ? "Showing" : "Menampilkan"}{" "}
+          <span className="text-gray-900 font-bold">{Math.min(visibleCount, filteredProducts.length)}</span>{" "}
+          {isEn ? "of" : "dari"}{" "}
+          <span className="text-gray-900 font-bold">{filteredProducts.length}</span>{" "}
+          {isEn ? "rental items" : "peralatan sewa"}
         </span>
         {searchQuery && (
           <span className="bg-brand-yellow/30 text-gray-800 px-2.5 py-1 rounded-md text-xs font-medium">
-            Hasil pencarian: &ldquo;{searchQuery}&rdquo;
+            {isEn ? "Search results:" : "Hasil pencarian:"} &ldquo;{searchQuery}&rdquo;
           </span>
         )}
       </div>
@@ -543,14 +560,14 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                       {/* Featured Badge */}
                       {product.featured && (
                         <div className="absolute top-3 left-3 bg-brand-yellow text-brand-dark font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm">
-                          Sewa Terbaik
+                          {isEn ? "Popular Rental" : "Sewa Terbaik"}
                         </div>
                       )}
 
                       {/* In-Cart Indicator Pill */}
                       {qtyInCart > 0 && (
                         <div className="absolute top-3 right-3 bg-brand-magenta text-white font-bold text-[11px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                          <Check size={12} strokeWidth={3} /> {qtyInCart} di daftar
+                          <Check size={12} strokeWidth={3} /> {qtyInCart} {isEn ? "in list" : "di daftar"}
                         </div>
                       )}
                     </div>
@@ -558,30 +575,32 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                     {/* Card Content */}
                     <div className="p-5 flex flex-col flex-grow">
                       <span className="text-[11px] font-semibold text-brand-magenta tracking-wider uppercase mb-1.5 block">
-                        {product.category.name}
+                        {translateCategoryName(product.category.slug, product.category.name, isEn)}
                       </span>
                       <h3 className="font-heading font-bold text-gray-900 group-hover:text-brand-magenta transition-colors mb-2 line-clamp-1 text-base">
                         {product.name}
                       </h3>
                       <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 mb-4 flex-grow">
-                        {product.description ||
-                          "Perlengkapan sewa berstandar produksi profesional dari Maganta Kreasi. Hubungi kami untuk penawaran jadwal."}
+                        {translateProductDescription(product.slug, product.description, isEn)}
                       </p>
 
                       {/* Price & Action Row */}
                       <div className="pt-4 border-t border-gray-100 mt-auto">
                         <div className="mb-3.5">
                           <span className="text-[11px] text-gray-400 block font-medium uppercase tracking-wider">
-                            Tarif Sewa
+                            {isEn ? "Rental Rate" : "Tarif Sewa"}
                           </span>
                           <span className="text-brand-magenta font-bold text-base md:text-lg">
                             {product.price > 0 ? (
                               <>
                                 {formatPrice(product.price)}
-                                <span className="text-xs text-gray-500 font-normal"> / {product.priceUnit}</span>
+                                <span className="text-xs text-gray-500 font-normal">
+                                  {" "}
+                                  / {translatePriceUnit(product.priceUnit, isEn)}
+                                </span>
                               </>
                             ) : (
-                              "Custom / Hubungi Tim"
+                              isEn ? "Custom / Contact Team" : "Custom / Hubungi Tim"
                             )}
                           </span>
                         </div>
@@ -614,7 +633,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                               onClick={() => addToCart(product)}
                               className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-brand-dark text-white font-semibold text-xs hover:bg-brand-magenta hover:shadow-md transition-all duration-200"
                             >
-                              <Plus size={14} /> Tambah ke Daftar Sewa
+                              <Plus size={14} /> {isEn ? "Add to Rental List" : "Tambah ke Daftar Sewa"}
                             </button>
                           )}
 
@@ -624,7 +643,7 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                             aria-label={`Tanya langsung tentang ${product.name} via WhatsApp`}
                             className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-brand-whatsapp/10 text-brand-whatsapp font-semibold text-xs hover:bg-brand-whatsapp hover:text-white transition-all duration-200"
                           >
-                            <MessageSquare size={13} /> Tanya Satuan via WhatsApp
+                            <MessageSquare size={13} /> {isEn ? "Inquire via WhatsApp" : "Tanya Satuan via WhatsApp"}
                           </button>
                         </div>
                       </div>
@@ -641,7 +660,9 @@ export default function ProductsList({ products, categories, whatsappNumber }: P
                 onClick={() => setVisibleCount((prev) => prev + 12)}
                 className="px-8 py-3.5 rounded-full bg-white text-gray-700 border border-gray-200 hover:border-brand-magenta hover:text-brand-magenta hover:scale-105 active:scale-95 transition-all duration-300 font-semibold text-sm shadow-sm cursor-pointer"
               >
-                Muat Lebih Banyak Produk ({filteredProducts.length - visibleCount} tersisa)
+                {isEn
+                  ? `Load More Products (${filteredProducts.length - visibleCount} remaining)`
+                  : `Muat Lebih Banyak Produk (${filteredProducts.length - visibleCount} tersisa)`}
               </button>
             </div>
           )}
