@@ -547,16 +547,16 @@ export default function Process({ steps = [] }: ProcessProps) {
                   <ProcessIllustration index={i} title={step.title} />
                 </div>
 
-                {/* Bold Dark-Ink Title */}
-                <h3 className="font-sans text-base sm:text-[17px] font-bold text-brand-dark leading-snug tracking-tight">
-                  <span className="font-mono text-xs font-semibold text-brand-dark/55 mr-2 tabular-nums">
+                {/* Bold Dark-Ink Title matching Cakupan Produksi typography */}
+                <h3 className="font-sans text-lg sm:text-[19px] font-bold text-brand-dark leading-snug tracking-tight">
+                  <span className="font-sans text-sm font-extrabold text-brand-magenta mr-2 tabular-nums">
                     {step.num}
                   </span>
                   {step.title}
                 </h3>
 
                 {/* Crisp Editorial Description */}
-                <p className="mt-2 text-brand-dark/80 text-xs sm:text-[13px] leading-relaxed">
+                <p className="mt-2 font-sans text-brand-dark/85 text-sm sm:text-[15px] leading-relaxed">
                   {step.desc}
                 </p>
               </motion.div>
@@ -599,15 +599,15 @@ export default function Process({ steps = [] }: ProcessProps) {
                 </svg>
               </div>
 
-              <span className="inline-flex items-center gap-1.5 font-sans text-base sm:text-[17px] font-bold text-brand-magenta group-hover:text-brand-dark transition-colors leading-snug tracking-tight">
+              <span className="inline-flex items-center gap-1.5 font-sans text-lg sm:text-[19px] font-bold text-brand-magenta group-hover:text-brand-dark transition-colors leading-snug tracking-tight">
                 {isEn ? "Start Your Project" : "Mulai Proyek Anda"}
                 <ArrowUpRight
-                  size={17}
+                  size={18}
                   aria-hidden="true"
                   className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5"
                 />
               </span>
-              <p className="mt-2 text-brand-dark/80 text-xs sm:text-[13px] leading-relaxed">
+              <p className="mt-2 font-sans text-brand-dark/85 text-sm sm:text-[15px] leading-relaxed">
                 {isEn
                   ? "Discuss your brief and event schedule directly with our workshop team."
                   : "Diskusikan brief dan jadwal event langsung dengan tim workshop kami."}
