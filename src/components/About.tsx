@@ -214,7 +214,7 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Top-Left Isometric Booth Wireframe Sketch */}
         <svg
-          className="hidden lg:block absolute top-8 left-[3%] w-28 h-24 text-zinc-800/75 pointer-events-none select-none"
+          className="hidden lg:block absolute top-8 left-[4%] w-28 h-24 text-zinc-800/75 pointer-events-none select-none"
           viewBox="0 0 120 100"
           fill="none"
           aria-hidden="true"
@@ -229,7 +229,7 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Mid-Left Diagonal Ruler Sketch */}
         <svg
-          className="hidden lg:block absolute top-[46%] left-[2%] w-16 h-28 text-zinc-800/70 pointer-events-none select-none -rotate-12"
+          className="hidden lg:block absolute top-[45%] left-[3%] w-16 h-28 text-zinc-800/70 pointer-events-none select-none -rotate-12"
           viewBox="0 0 60 120"
           fill="none"
           aria-hidden="true"
@@ -250,7 +250,7 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Bottom-Left Rolled Blueprint Tubes Sketch */}
         <svg
-          className="hidden lg:block absolute bottom-8 left-[3.5%] w-36 h-24 text-zinc-800/75 pointer-events-none select-none"
+          className="hidden lg:block absolute bottom-10 left-[5%] w-36 h-24 text-zinc-800/75 pointer-events-none select-none"
           viewBox="0 0 150 96"
           fill="none"
           aria-hidden="true"
@@ -268,46 +268,22 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Top-Center Floating Cloud Cutout */}
         <div
-          className="hidden lg:block absolute top-4 left-[44%] w-28 h-14 pointer-events-none select-none opacity-85"
+          className="hidden lg:block absolute top-5 left-[44%] w-28 h-14 pointer-events-none select-none opacity-85"
           aria-hidden="true"
         >
           <Image
-            src="/images/collage-cloud.jpg"
+            src="/images/collage-cloud-v2.png"
             alt=""
             fill
+            unoptimized
             sizes="112px"
-            className="object-contain mix-blend-multiply"
+            className="object-contain"
           />
         </div>
 
-        {/* Top-Center-Left Vintage Clock Sketch */}
-        <svg
-          className="hidden lg:block absolute top-14 left-[36%] w-14 h-14 text-zinc-900/80 pointer-events-none select-none"
-          viewBox="0 0 56 56"
-          fill="none"
-          aria-hidden="true"
-        >
-          <circle cx="28" cy="28" r="22" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.4" />
-          <circle cx="28" cy="28" r="19" stroke="currentColor" strokeWidth="0.7" opacity="0.5" />
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-            <line
-              key={deg}
-              x1="28"
-              y1="9"
-              x2="28"
-              y2={deg % 90 === 0 ? "13" : "11.5"}
-              stroke="currentColor"
-              strokeWidth={deg % 90 === 0 ? "1.4" : "1"}
-              transform={`rotate(${deg} 28 28)`}
-            />
-          ))}
-          <path d="M28 28 L28 16 M28 28 L37 32" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <circle cx="28" cy="28" r="1.8" fill="currentColor" />
-        </svg>
-
         {/* Top-Right Magenta Sun + Tiny Clock + Cloud Shadow */}
         <div
-          className="hidden lg:block absolute top-5 right-[18%] w-28 h-28 pointer-events-none select-none"
+          className="hidden lg:block absolute top-6 right-[18%] w-28 h-28 pointer-events-none select-none"
           aria-hidden="true"
         >
           <div className="relative w-full h-full flex items-center justify-center">
@@ -317,16 +293,17 @@ export default function About({ settings, stats }: AboutProps) {
               viewBox="0 0 40 40"
               fill="none"
             >
-              <circle cx="20" cy="20" r="14" fill="#FAF6EE" fillOpacity="0.85" stroke="currentColor" strokeWidth="1.4" />
+              <circle cx="20" cy="20" r="14" fill="#FAF6EE" fillOpacity="0.9" stroke="currentColor" strokeWidth="1.4" />
               <path d="M20 12 V20 L25 23" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
             </svg>
             <div className="absolute -bottom-3 w-28 h-12">
               <Image
-                src="/images/collage-cloud.jpg"
+                src="/images/collage-cloud-v2.png"
                 alt=""
                 fill
+                unoptimized
                 sizes="112px"
-                className="object-contain mix-blend-multiply opacity-75"
+                className="object-contain opacity-75"
               />
             </div>
           </div>
@@ -334,7 +311,7 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Mid-Right Vernier Caliper Measurement Tool Sketch */}
         <svg
-          className="hidden lg:block absolute top-[44%] right-0 w-24 h-24 text-zinc-800/75 pointer-events-none select-none"
+          className="hidden lg:block absolute top-[44%] right-[3%] w-24 h-24 text-zinc-800/75 pointer-events-none select-none"
           viewBox="0 0 110 100"
           fill="none"
           aria-hidden="true"
@@ -353,35 +330,37 @@ export default function About({ settings, stats }: AboutProps) {
 
         {/* Bottom-Center Soft Floating Cloud */}
         <div
-          className="hidden lg:block absolute bottom-6 left-[36%] w-28 h-14 pointer-events-none select-none opacity-80"
+          className="hidden lg:block absolute bottom-6 left-[35%] w-28 h-14 pointer-events-none select-none opacity-80"
           aria-hidden="true"
         >
           <Image
-            src="/images/collage-cloud.jpg"
+            src="/images/collage-cloud-v2.png"
             alt=""
             fill
+            unoptimized
             sizes="112px"
-            className="object-contain mix-blend-multiply"
+            className="object-contain"
           />
         </div>
 
         {/* Bottom-Right Halftone Pointing Hand Cutout */}
         <div
-          className="hidden lg:block absolute bottom-2 right-0 w-36 h-36 pointer-events-none select-none"
+          className="hidden lg:block absolute bottom-3 right-[3%] w-32 h-32 pointer-events-none select-none"
           aria-hidden="true"
         >
           <Image
-            src="/images/collage-hand.jpg"
+            src="/images/collage-hand-v2.png"
             alt=""
             fill
-            sizes="144px"
-            className="object-contain mix-blend-multiply"
+            unoptimized
+            sizes="128px"
+            className="object-contain"
           />
         </div>
 
         {/* Delicate Sweeping Ink Thread Line */}
         <svg
-          className="hidden lg:block absolute bottom-10 left-[47%] w-[36%] h-12 pointer-events-none select-none"
+          className="hidden lg:block absolute bottom-10 left-[46%] w-[37%] h-12 pointer-events-none select-none"
           viewBox="0 0 420 56"
           fill="none"
           preserveAspectRatio="none"
@@ -400,13 +379,14 @@ export default function About({ settings, stats }: AboutProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-10">
             {/* Left: Hand-Cut Halftone Editorial Collage */}
             <div className="lg:col-span-6 relative flex items-center justify-center">
-              <div className="relative w-full aspect-square max-w-[440px] sm:max-w-[500px] lg:max-w-[540px]">
+              <div className="relative w-full aspect-square max-w-[440px] sm:max-w-[500px] lg:max-w-[520px]">
                 <Image
-                  src="/images/collage-editorial-v2.jpg"
+                  src="/images/collage-editorial-v3.png"
                   alt="Kolase editorial proses fabrikasi workshop Maganta Kreasi"
                   fill
-                  sizes="(max-width: 1024px) 100vw, 540px"
-                  className="object-contain mix-blend-multiply"
+                  unoptimized
+                  sizes="(max-width: 1024px) 100vw, 520px"
+                  className="object-contain"
                   priority
                 />
               </div>
