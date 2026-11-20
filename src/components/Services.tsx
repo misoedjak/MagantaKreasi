@@ -777,18 +777,137 @@ export default function Services({ categories = [] }: ServicesProps) {
     <MotionConfig reducedMotion="user">
       <section
         id="services"
-        className="py-20 md:py-28 bg-white border-t border-zinc-200/80 relative overflow-hidden"
+        className="py-20 md:py-28 bg-[#FFFBF4] border-t border-zinc-200/80 relative overflow-hidden"
         suppressHydrationWarning
       >
-        {/* Stacked Two-Line Editorial Header matching the staggered poster reference */}
-        <div className="max-w-6xl mx-auto px-6 md:px-10 mb-14 md:mb-16">
-          <div className="flex flex-col items-center">
-            <div className="inline-flex flex-col items-start">
-              <h2 className="font-sans text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-950 leading-[0.94] uppercase">
-                <span className="block">{isEn ? "Production" : "Cakupan"}</span>
-                <span className="flex flex-wrap items-end gap-x-4 sm:gap-x-6 mt-1">
-                  <span>{isEn ? "Scope" : "Produksi"}</span>
-                  <span className="font-sans text-xs sm:text-[13px] font-medium normal-case tracking-normal text-zinc-600 leading-tight pb-1.5 sm:pb-2.5 max-w-[180px]">
+        {/* Colorful Flat-Editorial Background Layer (Matching the 5-Color Maganta Card Palette) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 overflow-hidden"
+        >
+          {/* Full-width colorful layered Storyset editorial waves & geometric backdrop */}
+          <svg
+            className="absolute inset-0 w-full h-full"
+            viewBox="0 0 1440 760"
+            preserveAspectRatio="none"
+            fill="none"
+          >
+            {/* Soft warm yellow sweep top-left to center */}
+            <path
+              d="M0 0 H620 C520 140 360 220 180 260 C90 280 30 310 0 340 Z"
+              fill="#FFD400"
+              fillOpacity="0.16"
+            />
+            {/* Soft rose/magenta arch sweep top-right */}
+            <path
+              d="M840 0 H1440 V310 C1310 270 1160 245 1030 185 C930 140 875 75 840 0 Z"
+              fill="#E04F82"
+              fillOpacity="0.13"
+            />
+            {/* Playful flowing coral/cream ribbon running behind the staggered cards */}
+            <path
+              d="M-40 430 C240 330 480 510 760 410 C1040 310 1240 460 1480 370 V760 H-40 Z"
+              fill="#F6F1E7"
+              fillOpacity="0.92"
+            />
+            {/* Bold subtle coral-orange wave peeking along the lower edge */}
+            <path
+              d="M-40 590 C260 510 540 650 860 560 C1120 485 1300 570 1480 520 V760 H-40 Z"
+              fill="#F06449"
+              fillOpacity="0.10"
+            />
+            {/* Magenta corner arc bottom-left */}
+            <circle cx="90" cy="690" r="170" fill="#BE3168" fillOpacity="0.08" />
+            {/* Brand yellow corner arc bottom-right */}
+            <circle cx="1360" cy="680" r="190" fill="#FFD400" fillOpacity="0.16" />
+          </svg>
+
+          {/* Subtle magenta architectural dot pattern across top canvas */}
+          <div
+            className="absolute inset-x-0 top-0 h-80 opacity-[0.26]"
+            style={{
+              backgroundImage: "radial-gradient(#be3168 1.1px, transparent 1.1px)",
+              backgroundSize: "24px 24px",
+              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)",
+              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)",
+            }}
+          />
+        </div>
+
+        {/* Centered Editorial Header Flanked Tightly by Storyset Workshop & 3D Decor Vignettes */}
+        <div className="max-w-6xl mx-auto px-6 md:px-10 mb-14 md:mb-16 relative z-10">
+          <div className="flex items-center justify-center gap-4 lg:gap-10">
+            {/* Left Vignette: Hugs right next to CAKUPAN PRODUKSI */}
+            <motion.svg
+              aria-hidden="true"
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="hidden md:block shrink-0 w-44 lg:w-64 h-36 lg:h-48 pointer-events-none select-none"
+              viewBox="0 0 300 220"
+              fill="none"
+            >
+              {/* Soft Cream Arch & Yellow Sun */}
+              <path d="M24 188 V86 C24 44 58 18 100 18 C142 18 176 44 176 86 V188 Z" fill="#F6F1E7" />
+              <circle cx="192" cy="70" r="34" fill="#FFD400" fillOpacity="0.35" />
+              <rect x="26" y="186" width="236" height="3" rx="1.5" fill="#18181B" fillOpacity="0.16" />
+
+              {/* Stage Truss Bar */}
+              <g stroke="#18181B" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" opacity="0.7">
+                <line x1="26" y1="34" x2="212" y2="34" />
+                <line x1="26" y1="49" x2="212" y2="49" />
+                <path d="M34 34 L49 49 L64 34 L79 49 L94 34 L109 49 L124 34 L139 49 L154 34 L169 49 L184 34 L199 49" />
+              </g>
+
+              {/* Hanging Spotlights + Soft Color Cones */}
+              <polygon points="74,55 46,154 102,154" fill="#FFD400" fillOpacity="0.24" />
+              <polygon points="150,55 124,154 178,154" fill="#E04F82" fillOpacity="0.18" />
+              <rect x="66" y="47" width="16" height="12" rx="3" fill="#BE3168" />
+              <rect x="142" y="47" width="16" height="12" rx="3" fill="#F06449" />
+
+              {/* Color Swatch Fan */}
+              <g transform="translate(96, 102)">
+                <rect x="0" y="18" width="25" height="66" rx="4" fill="#F06449" transform="rotate(-18 12 84)" />
+                <rect x="8" y="12" width="25" height="72" rx="4" fill="#FFD400" transform="rotate(-4 20 84)" />
+                <rect x="16" y="16" width="25" height="68" rx="4" fill="#BE3168" transform="rotate(12 28 84)" />
+                <circle cx="24" cy="74" r="3.5" fill="#FFFDF9" />
+              </g>
+
+              {/* Potted Botanical Plant */}
+              <g transform="translate(36, 120)">
+                <path d="M22 44 C12 28 8 14 14 4 C22 10 26 24 26 44 Z" fill="#E04F82" fillOpacity="0.82" />
+                <path d="M26 44 C34 24 44 14 52 14 C48 26 38 36 30 44 Z" fill="#BE3168" fillOpacity="0.88" />
+                <path d="M24 44 C20 26 26 10 34 2 C36 16 32 30 28 44 Z" fill="#F06449" fillOpacity="0.85" />
+                <path d="M12 44 H42 L38 66 H16 Z" fill="#18181B" fillOpacity="0.82" />
+                <rect x="10" y="40" width="34" height="6" rx="2" fill="#FFD400" />
+              </g>
+
+              {/* Sparkles & Dots */}
+              <path d="M242 40 L246 50 L256 54 L246 58 L242 68 L238 58 L228 54 L238 50 Z" fill="#FFD400" />
+              <circle cx="264" cy="96" r="6" fill="#E04F82" fillOpacity="0.7" />
+              <circle cx="224" cy="118" r="3.5" fill="#18181B" fillOpacity="0.4" />
+            </motion.svg>
+
+            {/* Center Two-Line Stacked Title with Soft Floating Motion */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-flex flex-col items-start shrink-0"
+            >
+              <motion.h2
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+                className="font-sans text-4xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight leading-[0.94] uppercase"
+              >
+                <span className="block bg-gradient-to-r from-[#be3168] via-[#E04F82] to-[#be3168] bg-clip-text text-transparent">
+                  {isEn ? "Production" : "Cakupan"}
+                </span>
+                <span className="flex flex-wrap items-end gap-x-4 sm:gap-x-5 mt-1">
+                  <span className="bg-gradient-to-r from-[#F06449] via-[#E04F82] to-[#be3168] bg-clip-text text-transparent">
+                    {isEn ? "Scope" : "Produksi"}
+                  </span>
+                  <span className="font-sans text-xs sm:text-[13px] font-semibold normal-case tracking-normal text-brand-magenta/90 leading-tight pb-1.5 sm:pb-2 max-w-[165px]">
                     {isEn ? (
                       <>
                         What we build
@@ -804,8 +923,45 @@ export default function Services({ categories = [] }: ServicesProps) {
                     )}
                   </span>
                 </span>
-              </h2>
-            </div>
+              </motion.h2>
+            </motion.div>
+
+            {/* Right Vignette: Hugs right next to CAKUPAN PRODUKSI */}
+            <motion.svg
+              aria-hidden="true"
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
+              className="hidden md:block shrink-0 w-44 lg:w-64 h-36 lg:h-48 pointer-events-none select-none"
+              viewBox="0 0 300 220"
+              fill="none"
+            >
+              {/* Soft Cream & Rose Backdrop Shapes */}
+              <circle cx="212" cy="92" r="74" fill="#F6F1E7" />
+              <path d="M142 188 V104 C142 74 166 50 196 50 C226 50 250 74 250 104 V188 Z" fill="#E04F82" fillOpacity="0.24" />
+              <rect x="34" y="186" width="236" height="3" rx="1.5" fill="#18181B" fillOpacity="0.16" />
+
+              {/* Layered 3D Decorative Arch */}
+              <path d="M164 186 V114 C164 90 182 72 206 72 C230 72 248 90 248 114 V186 Z" fill="#F06449" fillOpacity="0.9" />
+              <path d="M180 186 V120 C180 105 192 94 206 94 C220 94 232 105 232 120 V186 Z" fill="#FFFBF4" />
+              <path d="M192 186 V128 C192 119 198 112 206 112 C214 112 220 119 220 128 V186 Z" fill="#FFD400" />
+
+              {/* Exhibition Easel / Blueprint Board */}
+              <g transform="translate(70, 70)">
+                <line x1="14" y1="68" x2="6" y2="116" stroke="#18181B" strokeWidth="2.2" strokeLinecap="round" opacity="0.7" />
+                <line x1="66" y1="68" x2="74" y2="116" stroke="#18181B" strokeWidth="2.2" strokeLinecap="round" opacity="0.7" />
+                <rect x="4" y="8" width="72" height="62" rx="6" fill="#FFFFFF" stroke="#18181B" strokeWidth="1.6" strokeOpacity="0.65" />
+                <rect x="12" y="18" width="32" height="20" rx="3" fill="#BE3168" fillOpacity="0.9" />
+                <circle cx="58" cy="28" r="9" fill="#FFD400" />
+                <line x1="12" y1="48" x2="66" y2="48" stroke="#18181B" strokeWidth="1.6" strokeOpacity="0.38" strokeLinecap="round" />
+                <line x1="12" y1="57" x2="48" y2="57" stroke="#18181B" strokeWidth="1.6" strokeOpacity="0.28" strokeLinecap="round" />
+              </g>
+
+              {/* 3D Star & Floating Accent Shapes */}
+              <path d="M150 54 L155 66 L168 67 L158 75 L161 88 L150 81 L139 88 L142 75 L132 67 L145 66 Z" fill="#FFD400" stroke="#18181B" strokeWidth="1.3" strokeLinejoin="round" strokeOpacity="0.6" />
+              <path d="M44 44 L47 52 L55 55 L47 58 L44 66 L41 58 L33 55 L41 52 Z" fill="#BE3168" fillOpacity="0.8" />
+              <circle cx="266" cy="52" r="7" fill="#F06449" fillOpacity="0.65" />
+              <rect x="254" y="148" width="18" height="38" rx="3" fill="#BE3168" fillOpacity="0.85" />
+            </motion.svg>
           </div>
         </div>
 
