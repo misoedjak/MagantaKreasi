@@ -822,14 +822,12 @@ export default function Services({ categories = [] }: ServicesProps) {
             <circle cx="1360" cy="680" r="190" fill="#FFD400" fillOpacity="0.16" />
           </svg>
 
-          {/* Subtle magenta architectural dot pattern across top canvas */}
+          {/* Subtle magenta architectural dot pattern across top canvas (no maskImage repaint cost) */}
           <div
-            className="absolute inset-x-0 top-0 h-80 opacity-[0.26]"
+            className="absolute inset-x-0 top-0 h-64 opacity-[0.14]"
             style={{
               backgroundImage: "radial-gradient(#be3168 1.1px, transparent 1.1px)",
               backgroundSize: "24px 24px",
-              maskImage: "linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)",
-              WebkitMaskImage: "linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)",
             }}
           />
         </div>
@@ -837,11 +835,9 @@ export default function Services({ categories = [] }: ServicesProps) {
         {/* Centered Editorial Header Flanked Tightly by Storyset Workshop & 3D Decor Vignettes */}
         <div className="max-w-6xl mx-auto px-6 md:px-10 mb-14 md:mb-16 relative z-10">
           <div className="flex items-center justify-center gap-4 lg:gap-10">
-            {/* Left Vignette: Hugs right next to CAKUPAN PRODUKSI */}
-            <motion.svg
+            {/* Left Vignette: Static crisp SVG (zero per-frame SVG rasterization) */}
+            <svg
               aria-hidden="true"
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:block shrink-0 w-44 lg:w-64 h-36 lg:h-48 pointer-events-none select-none"
               viewBox="0 0 300 220"
               fill="none"
@@ -885,21 +881,11 @@ export default function Services({ categories = [] }: ServicesProps) {
               <path d="M242 40 L246 50 L256 54 L246 58 L242 68 L238 58 L228 54 L238 50 Z" fill="#FFD400" />
               <circle cx="264" cy="96" r="6" fill="#E04F82" fillOpacity="0.7" />
               <circle cx="224" cy="118" r="3.5" fill="#18181B" fillOpacity="0.4" />
-            </motion.svg>
+            </svg>
 
-            {/* Center Two-Line Stacked Title with Soft Floating Motion */}
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex flex-col items-start shrink-0"
-            >
-              <motion.h2
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
-                className="font-sans text-4xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight leading-[0.94] uppercase"
-              >
+            {/* Center Two-Line Stacked Title with Pure GPU CSS Gentle Float */}
+            <div className="inline-flex flex-col items-start shrink-0 animate-gentle-float">
+              <h2 className="font-sans text-4xl sm:text-5xl lg:text-[4.25rem] font-extrabold tracking-tight leading-[0.94] uppercase">
                 <span className="block bg-gradient-to-r from-[#be3168] via-[#E04F82] to-[#be3168] bg-clip-text text-transparent">
                   {isEn ? "Production" : "Cakupan"}
                 </span>
@@ -923,14 +909,12 @@ export default function Services({ categories = [] }: ServicesProps) {
                     )}
                   </span>
                 </span>
-              </motion.h2>
-            </motion.div>
+              </h2>
+            </div>
 
-            {/* Right Vignette: Hugs right next to CAKUPAN PRODUKSI */}
-            <motion.svg
+            {/* Right Vignette: Static crisp SVG (zero per-frame SVG rasterization) */}
+            <svg
               aria-hidden="true"
-              animate={{ y: [0, 5, 0] }}
-              transition={{ duration: 6.4, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:block shrink-0 w-44 lg:w-64 h-36 lg:h-48 pointer-events-none select-none"
               viewBox="0 0 300 220"
               fill="none"
@@ -961,7 +945,7 @@ export default function Services({ categories = [] }: ServicesProps) {
               <path d="M44 44 L47 52 L55 55 L47 58 L44 66 L41 58 L33 55 L41 52 Z" fill="#BE3168" fillOpacity="0.8" />
               <circle cx="266" cy="52" r="7" fill="#F06449" fillOpacity="0.65" />
               <rect x="254" y="148" width="18" height="38" rx="3" fill="#BE3168" fillOpacity="0.85" />
-            </motion.svg>
+            </svg>
           </div>
         </div>
 
