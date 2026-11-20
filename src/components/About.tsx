@@ -131,10 +131,8 @@ export default function About({ settings, stats }: AboutProps) {
       : defaultTrustStats;
 
   const headingText = isEn
-    ? "Built Directly From Our Own Workshop."
-    : settings?.heading && !settings.heading.includes("Dedikasi")
-      ? settings.heading
-      : "Dikerjakan Langsung dari Workshop Sendiri.";
+    ? "Built Directly From Our In-House Workshop."
+    : "Dikerjakan Langsung dari Workshop - In House";
 
   const para1Text = isEn
     ? "Maganta Kreasi is an in-house event and exhibition production workshop. We fabricate custom exhibition booths, corporate stages, backdrops, totems, and 3D signage with solid construction and refined finishing."

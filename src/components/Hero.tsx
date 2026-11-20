@@ -61,7 +61,7 @@ export default function Hero({ settings, showcaseProjects = [] }: HeroProps) {
   const headingText = "In-House Event Workshop Production Premium";
   const subheading = isEn
     ? "Built directly by our in-house workshop production team—cleaner finishes, on-time delivery, and ready to install at your venue."
-    : "Dikerjakan langsung oleh tim produksi di workshop kami sendiri—lebih rapi, tepat waktu, dan siap pasang di lokasi acara.";
+    : "Dikerjakan langsung oleh tim produksi di workshop in-house kami—lebih rapi, tepat waktu, dan siap pasang di lokasi acara.";
   const bgImageUrl = settings?.bgImageUrl || "/uploads/backgrounds/hero-flame-fest.jpg";
   const ctaText = isEn ? "Order Here" : settings?.ctaText || "Pesan disini";
   const ctaLink = settings?.ctaLink || "#contact";
