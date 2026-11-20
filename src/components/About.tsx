@@ -150,127 +150,287 @@ export default function About({ settings, stats }: AboutProps) {
 
   return (
     <section id="about" className="bg-white relative z-10 overflow-x-clip">
-      {/* Part 1: Multi-Layered Editorial Collage Banner (Warm Cream Graph-Paper Canvas) */}
-      <div className="pt-20 md:pt-28 pb-20 md:pb-28">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
-          <div className="relative rounded-[28px] sm:rounded-[32px] border border-stone-300/70 bg-paper-cream bg-grid-paper overflow-visible">
-            {/* Top-Right Floating Accent: Coral/Magenta Sun + Hand-Drawn Clock + Cloud (breaks out of top edge) */}
-            <div
-              className="hidden lg:block absolute -top-11 right-[14%] w-32 h-28 pointer-events-none select-none"
-              aria-hidden="true"
-            >
-              <div className="relative w-full h-full flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-brand-magenta/80" />
-                <svg
-                  className="absolute -top-2 w-10 h-10 text-zinc-900"
-                  viewBox="0 0 40 40"
-                  fill="none"
-                >
-                  <circle
-                    cx="20"
-                    cy="20"
-                    r="15"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                  />
-                  <path
-                    d="M20 11 V20 L26 23"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute -bottom-3 w-32 h-16">
-                  <Image
-                    src="/images/collage-cloud.jpg"
-                    alt=""
-                    fill
-                    sizes="128px"
-                    className="object-contain mix-blend-multiply"
-                  />
-                </div>
-              </div>
-            </div>
+      {/* Part 1: Full-Bleed Editorial Collage Band (Warm Cream Graph-Paper Canvas) */}
+      <div className="relative w-full bg-paper-cream bg-grid-paper overflow-hidden py-16 sm:py-20 md:py-24 lg:py-28">
+        {/* Top-Right Torn Pink Paper Corner Scrap */}
+        <svg
+          className="hidden md:block absolute top-0 right-0 w-36 lg:w-44 h-24 pointer-events-none select-none"
+          viewBox="0 0 180 96"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M42 0 H180 V78 L168 72 L156 60 L144 55 L132 45 L118 40 L105 30 L92 26 L78 16 L62 12 L42 0 Z"
+            fill="#E04F82"
+            fillOpacity="0.65"
+          />
+          <path
+            d="M42 0 L62 12 L78 16 L92 26 L105 30 L118 40 L132 45 L144 55 L156 60 L168 72 L180 78"
+            stroke="#FAF6EE"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+        </svg>
 
-            {/* Bottom-Left Overflowing Cloud Cutout (breaks out of bottom-left edge) */}
-            <div
-              className="hidden sm:block absolute -bottom-12 -left-6 w-52 sm:w-64 h-28 sm:h-32 pointer-events-none select-none"
-              aria-hidden="true"
+        {/* Bottom-Left Torn Blue Grid Paper Corner Scrap */}
+        <svg
+          className="hidden md:block absolute bottom-0 left-0 w-32 lg:w-40 h-20 pointer-events-none select-none"
+          viewBox="0 0 160 80"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M0 18 L18 22 L34 32 L52 36 L72 48 L92 54 L112 66 L132 72 L148 80 H0 V18 Z"
+            fill="#6096BA"
+            fillOpacity="0.55"
+          />
+          <path
+            d="M0 18 L18 22 L34 32 L52 36 L72 48 L92 54 L112 66 L132 72 L148 80"
+            stroke="#FAF6EE"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* Bottom-Right Torn Kraft Paper Strip */}
+        <svg
+          className="hidden md:block absolute bottom-0 right-0 w-72 lg:w-96 h-20 pointer-events-none select-none"
+          viewBox="0 0 380 80"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 80 L45 72 L78 68 L112 58 L148 54 L182 44 L218 42 L254 30 L292 26 L332 16 L362 10 L380 4 V80 H12 Z"
+            fill="#DFCBB0"
+            fillOpacity="0.82"
+          />
+          <path
+            d="M12 80 L45 72 L78 68 L112 58 L148 54 L182 44 L218 42 L254 30 L292 26 L332 16 L362 10 L380 4"
+            stroke="#FAF6EE"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* Top-Left Isometric Booth Wireframe Sketch */}
+        <svg
+          className="hidden lg:block absolute top-8 left-[3%] w-28 h-24 text-zinc-800/75 pointer-events-none select-none"
+          viewBox="0 0 120 100"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M18 34 L62 18 L104 28 L60 44 Z" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M18 34 V78 L60 90 V44" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M104 28 V72 L60 90" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M62 18 V62 L18 78 M62 62 L104 72" stroke="currentColor" strokeWidth="0.9" strokeDasharray="3 3" />
+          <path d="M40 26 V84 M82 36 V81" stroke="currentColor" strokeWidth="1" />
+          <path d="M10 78 L112 72" stroke="currentColor" strokeWidth="0.7" opacity="0.4" />
+        </svg>
+
+        {/* Mid-Left Diagonal Ruler Sketch */}
+        <svg
+          className="hidden lg:block absolute top-[46%] left-[2%] w-16 h-28 text-zinc-800/70 pointer-events-none select-none -rotate-12"
+          viewBox="0 0 60 120"
+          fill="none"
+          aria-hidden="true"
+        >
+          <rect x="20" y="6" width="18" height="108" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+          {[18, 28, 38, 48, 58, 68, 78, 88, 98].map((y, idx) => (
+            <line
+              key={y}
+              x1="20"
+              y1={y}
+              x2={idx % 2 === 0 ? "30" : "26"}
+              y2={y}
+              stroke="currentColor"
+              strokeWidth="1.1"
+            />
+          ))}
+        </svg>
+
+        {/* Bottom-Left Rolled Blueprint Tubes Sketch */}
+        <svg
+          className="hidden lg:block absolute bottom-8 left-[3.5%] w-36 h-24 text-zinc-800/75 pointer-events-none select-none"
+          viewBox="0 0 150 96"
+          fill="none"
+          aria-hidden="true"
+        >
+          {/* Back roll */}
+          <path d="M56 34 L128 60 C134 62 132 76 124 75 L52 49" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+          <ellipse cx="54" cy="41.5" rx="6" ry="8" transform="rotate(-18 54 41.5)" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M54 39 C56 39 57 42 54 44" stroke="currentColor" strokeWidth="1" />
+          {/* Front roll */}
+          <path d="M18 42 L106 74 C112 76 110 90 101 89 L14 57" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+          <ellipse cx="16" cy="49.5" rx="6.5" ry="8.5" transform="rotate(-18 16 49.5)" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M16 47 C18.5 47 19.5 50.5 16 52.5" stroke="currentColor" strokeWidth="1" />
+          <path d="M28 53 L94 77" stroke="currentColor" strokeWidth="0.9" opacity="0.55" />
+        </svg>
+
+        {/* Top-Center Floating Cloud Cutout */}
+        <div
+          className="hidden lg:block absolute top-4 left-[44%] w-28 h-14 pointer-events-none select-none opacity-85"
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/collage-cloud.jpg"
+            alt=""
+            fill
+            sizes="112px"
+            className="object-contain mix-blend-multiply"
+          />
+        </div>
+
+        {/* Top-Center-Left Vintage Clock Sketch */}
+        <svg
+          className="hidden lg:block absolute top-14 left-[36%] w-14 h-14 text-zinc-900/80 pointer-events-none select-none"
+          viewBox="0 0 56 56"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle cx="28" cy="28" r="22" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.4" />
+          <circle cx="28" cy="28" r="19" stroke="currentColor" strokeWidth="0.7" opacity="0.5" />
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+            <line
+              key={deg}
+              x1="28"
+              y1="9"
+              x2="28"
+              y2={deg % 90 === 0 ? "13" : "11.5"}
+              stroke="currentColor"
+              strokeWidth={deg % 90 === 0 ? "1.4" : "1"}
+              transform={`rotate(${deg} 28 28)`}
+            />
+          ))}
+          <path d="M28 28 L28 16 M28 28 L37 32" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="28" cy="28" r="1.8" fill="currentColor" />
+        </svg>
+
+        {/* Top-Right Magenta Sun + Tiny Clock + Cloud Shadow */}
+        <div
+          className="hidden lg:block absolute top-5 right-[18%] w-28 h-28 pointer-events-none select-none"
+          aria-hidden="true"
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-brand-magenta/85 shadow-sm" />
+            <svg
+              className="absolute -top-1 w-9 h-9 text-zinc-900"
+              viewBox="0 0 40 40"
+              fill="none"
             >
+              <circle cx="20" cy="20" r="14" fill="#FAF6EE" fillOpacity="0.85" stroke="currentColor" strokeWidth="1.4" />
+              <path d="M20 12 V20 L25 23" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            </svg>
+            <div className="absolute -bottom-3 w-28 h-12">
               <Image
                 src="/images/collage-cloud.jpg"
                 alt=""
                 fill
-                sizes="256px"
-                className="object-contain mix-blend-multiply"
-              />
-            </div>
-
-            {/* Bottom-Right Halftone Pointing Hand Cutout (reaches in from bottom-right edge) */}
-            <div
-              className="hidden lg:block absolute -bottom-11 -right-3 w-28 h-28 pointer-events-none select-none"
-              aria-hidden="true"
-            >
-              <Image
-                src="/images/collage-hand.jpg"
-                alt=""
-                fill
                 sizes="112px"
-                className="object-contain mix-blend-multiply"
+                className="object-contain mix-blend-multiply opacity-75"
               />
             </div>
+          </div>
+        </div>
 
-            {/* Delicate Ink Thread Line sweeping along bottom-right to the pointing finger */}
-            <svg
-              className="hidden lg:block absolute bottom-3 left-[48%] w-[41%] h-12 pointer-events-none select-none"
-              viewBox="0 0 420 56"
-              fill="none"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M 4 8 Q 110 52 240 40 T 414 34"
-                stroke="#18181b"
-                strokeWidth="1.1"
-                strokeLinecap="round"
-              />
-            </svg>
+        {/* Mid-Right Vernier Caliper Measurement Tool Sketch */}
+        <svg
+          className="hidden lg:block absolute top-[44%] right-0 w-24 h-24 text-zinc-800/75 pointer-events-none select-none"
+          viewBox="0 0 110 100"
+          fill="none"
+          aria-hidden="true"
+        >
+          <g transform="rotate(28 55 50)">
+            <rect x="26" y="42" width="84" height="10" rx="1" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M26 42 L14 22 L20 20 L34 42 Z" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M26 52 L10 74 L17 76 L34 52 Z" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M48 42 L38 24 L44 22 L56 42 Z" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M48 52 L36 72 L43 74 L56 52 Z" fill="#FAF6EE" stroke="currentColor" strokeWidth="1.3" />
+            {[36, 44, 52, 60, 68, 76, 84, 92, 100].map((x) => (
+              <line key={x} x1={x} y1="42" x2={x} y2="46" stroke="currentColor" strokeWidth="0.9" />
+            ))}
+          </g>
+        </svg>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 items-center relative">
-              {/* Left: Hand-Cut Halftone Editorial Collage */}
-              <div className="lg:col-span-6 relative p-6 sm:p-10 flex items-center justify-center">
-                <div className="relative w-full aspect-square max-w-[420px] sm:max-w-[470px]">
-                  <Image
-                    src="/images/collage-editorial-v2.jpg"
-                    alt="Kolase editorial proses fabrikasi workshop Maganta Kreasi"
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 480px"
-                    className="object-contain mix-blend-multiply"
-                    priority
-                  />
-                </div>
+        {/* Bottom-Center Soft Floating Cloud */}
+        <div
+          className="hidden lg:block absolute bottom-6 left-[36%] w-28 h-14 pointer-events-none select-none opacity-80"
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/collage-cloud.jpg"
+            alt=""
+            fill
+            sizes="112px"
+            className="object-contain mix-blend-multiply"
+          />
+        </div>
+
+        {/* Bottom-Right Halftone Pointing Hand Cutout */}
+        <div
+          className="hidden lg:block absolute bottom-2 right-0 w-36 h-36 pointer-events-none select-none"
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/collage-hand.jpg"
+            alt=""
+            fill
+            sizes="144px"
+            className="object-contain mix-blend-multiply"
+          />
+        </div>
+
+        {/* Delicate Sweeping Ink Thread Line */}
+        <svg
+          className="hidden lg:block absolute bottom-10 left-[47%] w-[36%] h-12 pointer-events-none select-none"
+          viewBox="0 0 420 56"
+          fill="none"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M 4 10 Q 130 48 260 36 T 414 26"
+            stroke="#18181b"
+            strokeWidth="1.15"
+            strokeLinecap="round"
+          />
+        </svg>
+
+        {/* Main Content Grid */}
+        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 lg:gap-10">
+            {/* Left: Hand-Cut Halftone Editorial Collage */}
+            <div className="lg:col-span-6 relative flex items-center justify-center">
+              <div className="relative w-full aspect-square max-w-[440px] sm:max-w-[500px] lg:max-w-[540px]">
+                <Image
+                  src="/images/collage-editorial-v2.jpg"
+                  alt="Kolase editorial proses fabrikasi workshop Maganta Kreasi"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 540px"
+                  className="object-contain mix-blend-multiply"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Right: Clean Editorial Copy */}
+            <div className="lg:col-span-6 lg:pr-12 lg:pl-4 flex flex-col justify-center">
+              <div className="mb-3">
+                <span className="text-xs font-bold uppercase tracking-widest text-brand-magenta">
+                  {isEn ? "About Our Workshop" : "Tentang Workshop Kami"}
+                </span>
               </div>
 
-              {/* Right: Clean Editorial Copy (Preserved Text, No Button, No Location Badge) */}
-              <div className="lg:col-span-6 p-6 sm:p-10 lg:pr-14 lg:pl-4 flex flex-col justify-center">
-                <div className="mb-3">
-                  <span className="text-xs font-bold uppercase tracking-widest text-brand-magenta">
-                    {isEn ? "About Our Workshop" : "Tentang Workshop Kami"}
-                  </span>
-                </div>
+              <h2 className="font-heading text-3xl sm:text-4xl lg:text-[2.6rem] font-bold text-zinc-950 tracking-tight leading-[1.12] mb-5">
+                {headingText}
+              </h2>
 
-                <h2 className="font-heading text-2xl sm:text-3xl lg:text-[2.35rem] font-bold text-zinc-950 tracking-tight leading-[1.14] mb-5">
-                  {headingText}
-                </h2>
-
-                <div className="space-y-4 text-stone-700 text-sm sm:text-base leading-relaxed">
-                  <p className="font-medium text-zinc-900 leading-relaxed">
-                    {para1Text}
-                  </p>
-                  <p className="text-stone-600 text-sm sm:text-[15px] leading-relaxed">
-                    {para2Text}
-                  </p>
-                </div>
+              <div className="space-y-4 text-stone-700 text-sm sm:text-base leading-relaxed max-w-xl">
+                <p className="font-medium text-zinc-900 leading-relaxed">
+                  {para1Text}
+                </p>
+                <p className="text-stone-600 text-sm sm:text-[15px] leading-relaxed">
+                  {para2Text}
+                </p>
               </div>
             </div>
           </div>
